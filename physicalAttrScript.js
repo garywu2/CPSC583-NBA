@@ -23,6 +23,40 @@ window.onload = function () {
   );
   let image = document.getElementById("phys-attr-player-img");
   image.addEventListener("error", onError);
+
+  const ctx = document.getElementById("myChart");
+
+  const radarChart = new Chart(ctx, {
+    type: "radar",
+    data: {
+      labels: ["Eating", "Drinking", "Sleeping", "Designing", "Coding"],
+      datasets: [
+        {
+          data: [65, 59, 90, 81, 56],
+          fill: true,
+          backgroundColor: "rgba(255, 99, 132, 0.2)",
+          borderColor: "rgb(255, 99, 132)",
+          pointBackgroundColor: "rgb(255, 99, 132)",
+          pointBorderColor: "#fff",
+          pointHoverBackgroundColor: "#fff",
+          pointHoverBorderColor: "rgb(255, 99, 132)",
+        },
+      ],
+    },
+    options: {
+      maintainAspectRatio: false,
+      elements: {
+        line: {
+          borderWidth: 3,
+        },
+      },
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+    },
+  });
 };
 
 const MARGIN = {
@@ -187,22 +221,26 @@ let PhysicalAttrChart = function (data, svg) {
 };
 
 function updateChart() {
-  let select = document.getElementById("physical-attr-select");
-  const value = select.value;
+  let attributeInput = document.getElementById("physical-attr-select");
+  const attrValue = attributeInput.value;
 
-  if (!value) return;
+  let aggregateInput = document.getElementById("aggregate-select");
+  const aggrValue = aggregateInput.value;
 
   let oldChart = document.getElementById("phys-attr-chart");
   oldChart.remove();
 
   data = d3
-    .groups(globalData, (d) => d.country)
+    .groups(globalData, (d) => d[aggrValue])
     .map(
-      (d) => d[1].sort((a, b) => parseFloat(b[value]) - parseFloat(a[value]))[0]
+      (d) =>
+        d[1].sort(
+          (a, b) => parseFloat(b[attrValue]) - parseFloat(a[attrValue])
+        )[0]
     )
-    .filter((item) => item[value] != 0)
+    .filter((item) => item[attrValue] != 0 && item[aggrValue])
     .slice(0, 15);
-  console.log(data[0]);
+  console.log(data);
 
   //creating the scales for our bar chart
   let xScale = d3
@@ -214,8 +252,8 @@ function updateChart() {
   let yScale = d3
     .scaleLinear()
     .domain([
-      d3.min(data.map((d) => parseFloat(d[value]))) - 2,
-      parseFloat(d3.max(data.map((d) => parseFloat(d[value])))) + 2,
+      d3.min(data.map((d) => parseFloat(d[attrValue]))) - 2,
+      parseFloat(d3.max(data.map((d) => parseFloat(d[attrValue])))) + 2,
     ])
     .range([height - MARGIN.BOTTOM, MARGIN.TOP]);
 
@@ -229,7 +267,7 @@ function updateChart() {
   dots
     .append("circle")
     .attr("cx", (d, i) => xScale(i) + xScale.bandwidth() / 2)
-    .attr("cy", (d) => yScale(d[value]))
+    .attr("cy", (d) => yScale(d[attrValue]))
     .attr("r", 15)
     .style("fill", "white")
     .style("stroke", "black");
@@ -244,7 +282,7 @@ function updateChart() {
     .attr("height", 20)
     .attr("width", 25)
     .attr("x", (d, i) => xScale(i) + xScale.bandwidth() / 2 - 13)
-    .attr("y", (d) => yScale(d[value]) - 11)
+    .attr("y", (d) => yScale(d[attrValue]) - 11)
     .on("error", function (d) {
       this.setAttribute(
         "href",
@@ -275,7 +313,7 @@ function updateChart() {
 
   var xAxis = d3
     .axisBottom()
-    .tickFormat((d, i) => data[i].country)
+    .tickFormat((d, i) => data[i][aggrValue])
     .scale(xScale);
 
   chart

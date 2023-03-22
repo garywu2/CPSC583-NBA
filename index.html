@@ -8,6 +8,7 @@
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" type="text/css" href="style.css" />
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
   </head>
@@ -15,9 +16,20 @@
   <body>
     <div class="container mt-5">
       <p class="fs-3 text-center">Welcome to Group-14 CPSC 583 Project</p>
-      <ul>
-        <li><a href="physicalAttr.html">Go to Physical Attr Page</a></li>
-      </ul>
+      <div id="navigation">
+        <p>
+            <a class="navbarPadding" href="index.html">Home</a>|
+            <a class="navbarPadding" href="physicalAttr.html">Physical Attributes</a>|
+            <a class="navbarPadding" href="games.html">Games</a>
+        </p>
+      </div>
+      <div id="content">
+        <h1 class="centertext">NBA Dataset Visualizations</h1>
+        <h3 class="centertextsmall">by Gurmukh, Moiz and Gary</h3>
+        <p>&nbsp; </p>
+        <div id="picture"> </div>
+        <p class="eventsText">The dataset we are using is comes from Kaggle: https://www.kaggle.com/datasets/wyattowalsh/basketball and we will be doing 3 visualizations one focusing on physical attributes, one focusing on games and one focusing on player stats!</p>
+      </div>
     </div>
   </body>
 </html>

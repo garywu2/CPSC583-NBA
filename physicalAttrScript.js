@@ -1,6 +1,38 @@
 let d3 = window.d3;
 
+const THEME_COLOR = "0, 0, 139";
+
+const LABELS = {
+  bench_press: "185 lb Bench Press Repetitions",
+  wingspan: "Wingspan(in)",
+  country: "Birth Country",
+  team_city: "Team City",
+  team_name: "Team",
+  player_name: "Player",
+  max_vertical_leap: "Max Vertical Leap(in)",
+  height_wo_shoes: "Height(in)",
+  three_quarter_sprint: "Three Quarter Sprint(s)",
+};
+
+const TOOLTIP_LABELS = {
+  bench_press: "Benchpress",
+  wingspan: "Wingspan",
+  country: "Birth Country",
+  team_city: "Team City",
+  team_name: "Team",
+  player_name: "Player",
+  max_vertical_leap: "Max Vertical Leap",
+  height_wo_shoes: "Height",
+  three_quarter_sprint: "Three Quarter Sprint",
+};
+
 let globalData;
+
+let chartData = {};
+
+let radarChart;
+
+let Tooltip;
 
 function onError(e) {
   e.target.onerror = null;
@@ -15,31 +47,121 @@ function getAgeFromBirthdate(birthdateStr) {
   return Math.abs(ageDate.getUTCFullYear() - 1970);
 }
 
-// https://cdn.glitch.global/3ae5118d-10e7-47f4-942f-74a8d71c1575/sample_image.png?v=1679268087091
+function scaleAttrs(value, inMax, inMin, outMax, outMin) {
+  value = parseFloat(value);
+  let returnVal =
+    (value - inMin) * ((outMax - outMin) / (inMax - inMin)) + outMin;
+  console.log(returnVal);
+  return !returnVal || returnVal <= 0 ? 50 : parseInt(returnVal);
+}
+
+function onMouseOver(
+  element,
+  name,
+  aggrLabel,
+  aggrValue,
+  attrLabel,
+  attrValue
+) {
+  d3.select(element.parentNode)
+    .style("stroke", `rgb(${THEME_COLOR})`)
+    .style("stroke-width", "2");
+
+  if (aggrLabel === "player_name") {
+    Tooltip.html(
+      `<p>${TOOLTIP_LABELS[aggrLabel]}: ${aggrValue}<br/>${TOOLTIP_LABELS[attrLabel]}: ${attrValue}</p>`
+    ).style("opacity", "1");
+    return;
+  }
+  Tooltip.html(
+    `<p>Name: ${name}<br/>${TOOLTIP_LABELS[attrLabel]}: ${attrValue}<br/>${TOOLTIP_LABELS[aggrLabel]}: ${aggrValue}</p>`
+  ).style("opacity", "1");
+}
+
+function onMouseMove(event) {
+  Tooltip.style("left", event.layerX + "px").style("top", event.layerY + "px");
+}
+
+function onMouseOut(element) {
+  d3.select(element.parentNode)
+    .style("stroke-width", "1")
+    .style("stroke", "black");
+  Tooltip.style("opacity", "0");
+}
+
+function onClick(e) {
+  let image = document.getElementById("phys-attr-player-img");
+  image.src = `https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/${e.target.__data__.player_id}.png`;
+
+  let playerNameContainer = document.getElementById("phys-attr-player-name");
+  playerNameContainer.innerHTML = `&nbsp;${e.target.__data__.first_name} ${e.target.__data__.last_name}`;
+
+  let playerAgeContainer = document.getElementById("phys-attr-player-age");
+  playerAgeContainer.innerHTML = `&nbsp;${getAgeFromBirthdate(
+    e.target.__data__.birthdate
+  )}`;
+
+  chartData = {
+    benchpress: e.target.__data__.bench_press,
+    maxVerticalLeap: e.target.__data__.standing_vertical_leap,
+    wingspan: e.target.__data__.wingspan,
+    threeQuarterSprint: e.target.__data__.three_quarter_sprint,
+    height: e.target.__data__.height_wo_shoes,
+  };
+  (radarChart.data.datasets[0] = {
+    data: [
+      scaleAttrs(chartData.benchpress, 29, 0, 100, 0),
+      scaleAttrs(chartData.maxVerticalLeap, 44.5, 22.5, 100, 0),
+      scaleAttrs(chartData.wingspan, 95, 70.75, 100, 0),
+      scaleAttrs(chartData.threeQuarterSprint, 29, 0, 100, 0),
+      scaleAttrs(chartData.height, 95, 60, 100, 0),
+    ],
+    fill: true,
+    backgroundColor: `rgba(${THEME_COLOR}, 0.2)`,
+    borderColor: `rgb(${THEME_COLOR})`,
+    pointBackgroundColor: `rgb(${THEME_COLOR})`,
+    pointBorderColor: "#fff",
+    pointHoverBackgroundColor: "#fff",
+    pointHoverBorderColor: `rgb(${THEME_COLOR})`,
+  }),
+    radarChart.update();
+}
 
 window.onload = function () {
   setup(
     "https://cdn.glitch.global/f6d71f37-7469-4731-ad9c-1a479f0ead49/physical_attr_comb.csv?v=1679344803437"
   );
+
   let image = document.getElementById("phys-attr-player-img");
   image.addEventListener("error", onError);
 
   const ctx = document.getElementById("myChart");
-
-  const radarChart = new Chart(ctx, {
+  radarChart = new Chart(ctx, {
     type: "radar",
     data: {
-      labels: ["Eating", "Drinking", "Sleeping", "Designing", "Coding"],
+      labels: [
+        "Benchpress",
+        "Max Vertical Leap",
+        "Wingspan",
+        "Three Quarter Sprint",
+        "Height",
+      ],
       datasets: [
         {
-          data: [65, 59, 90, 81, 56],
+          data: [
+            chartData.benchpress,
+            chartData.maxVerticalLeap,
+            chartData.wingspan,
+            chartData.threeQuarterSprint,
+            chartData.height,
+          ],
           fill: true,
-          backgroundColor: "rgba(255, 99, 132, 0.2)",
-          borderColor: "rgb(255, 99, 132)",
-          pointBackgroundColor: "rgb(255, 99, 132)",
+          backgroundColor: `rgba(${THEME_COLOR}, 0.2)`,
+          borderColor: `rgb(${THEME_COLOR})`,
+          pointBackgroundColor: `rgb(${THEME_COLOR})`,
           pointBorderColor: "#fff",
           pointHoverBackgroundColor: "#fff",
-          pointHoverBorderColor: "rgb(255, 99, 132)",
+          pointHoverBorderColor: `rgb(${THEME_COLOR})`,
         },
       ],
     },
@@ -55,7 +177,23 @@ window.onload = function () {
           display: false,
         },
       },
+      scales: {
+        r: {
+          suggestedMin: 0,
+          suggestedMax: 100,
+        },
+      },
     },
+  });
+
+  //Enabling tooltips
+  //code from bootstrap 5 docs
+  //https://getbootstrap.com/docs/5.0/components/tooltips/
+  let tooltipTriggerList = [].slice.call(
+    document.querySelectorAll('[data-bs-toggle="tooltip"]')
+  );
+  tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
   });
 };
 
@@ -69,9 +207,8 @@ const MARGIN = {
 const width = 700,
   height = 500;
 
-var _physicalAttrChart;
-
-//   https://gist.github.com/mbostock/7555321
+// to wrap the tick labels
+//  https://gist.github.com/mbostock/7555321
 function wrap(text, width) {
   text.each(function () {
     var text = d3.select(this),
@@ -114,7 +251,7 @@ setup = function (dataPath) {
     //let aggrData =    d3.groups(data, d => d.country).map(d =>  d[1].sort((a,b) => parseFloat(b.wingspan) - parseFloat(a.wingspan))[0]).filter(item => item['wingspan'] != 0).slice(0,15)
 
     globalData = data;
-    _physicalAttrChart = new PhysicalAttrChart(data, SVG);
+    let _physicalAttrChart = new PhysicalAttrChart(data, SVG);
     _physicalAttrChart.draw();
   });
 };
@@ -149,15 +286,33 @@ let PhysicalAttrChart = function (data, svg) {
 
     let chart = svg.append("g").attr("id", "phys-attr-chart");
 
-    let dots = chart.selectAll("g").data(data).enter().append("g");
+    let dots = chart
+      .selectAll("g")
+      .data(data)
+      .enter()
+      .append("g")
+      .style("stroke", (d) =>
+        d.greatest_75_flag === "Y" ? "golden" : "black"
+      );
+
+    Tooltip = d3
+      .select("body")
+      .append("div")
+      .attr("class", "attr-img-tooltip")
+      .style("position", "absolute")
+      .style("opacity", "0")
+      .style("z-index", "10")
+      .style("background", "white")
+      .style("pointer-events", "none")
+      .style("border-style", "solid")
+      .style("border-color", "rgb(0, 0, 139)");
 
     dots
       .append("circle")
       .attr("cx", (d, i) => xScale(i) + xScale.bandwidth() / 2)
       .attr("cy", (d) => yScale(d["wingspan"]))
       .attr("r", 15)
-      .style("fill", "white")
-      .style("stroke", "black");
+      .style("fill", "white");
 
     dots
       .append("svg:image")
@@ -177,20 +332,23 @@ let PhysicalAttrChart = function (data, svg) {
         );
       })
       .on("click", (e) => {
-        let image = document.getElementById("phys-attr-player-img");
-        image.src = `https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/${e.target.__data__.player_id}.png`;
-
-        let playerNameContainer = document.getElementById(
-          "phys-attr-player-name"
+        onClick(e);
+      })
+      .on("mouseover", function (e) {
+        onMouseOver(
+          this,
+          e.target.__data__.player_name,
+          "country",
+          e.target.__data__.country,
+          "wingspan",
+          e.target.__data__.wingspan
         );
-        playerNameContainer.innerHTML = `&nbsp;${e.target.__data__.first_name} ${e.target.__data__.last_name}`;
-
-        let playerAgeContainer = document.getElementById(
-          "phys-attr-player-age"
-        );
-        playerAgeContainer.innerHTML = `&nbsp;${getAgeFromBirthdate(
-          e.target.__data__.birthdate
-        )}`;
+      })
+      .on("mouseout", function (d) {
+        onMouseOut(this);
+      })
+      .on("mousemove", function (event, d) {
+        onMouseMove(event);
       });
 
     var yAxis = d3.axisLeft().scale(yScale);
@@ -217,6 +375,19 @@ let PhysicalAttrChart = function (data, svg) {
       .call(wrap, xScale.bandwidth());
 
     chart.select("#xAxis").selectAll(".tick text").attr("font-size", "8");
+
+    chart
+      .append("text") // text label for the x axis
+      .attr("x", 400)
+      .attr("y", 530)
+      .style("text-anchor", "middle")
+      .text("Birth Country");
+
+    chart
+      .append("text") // text label for the x axis
+      .style("text-anchor", "middle")
+      .attr("transform", "translate(20,250)rotate(-90)")
+      .text("Wingspan(in)");
   };
 };
 
@@ -262,15 +433,19 @@ function updateChart() {
 
   let chart = svg.append("g").attr("id", "phys-attr-chart");
 
-  let dots = chart.selectAll("g").data(data).enter().append("g");
+  let dots = chart
+    .selectAll("g")
+    .data(data)
+    .enter()
+    .append("g")
+    .style("stroke", "black");
 
   dots
     .append("circle")
     .attr("cx", (d, i) => xScale(i) + xScale.bandwidth() / 2)
     .attr("cy", (d) => yScale(d[attrValue]))
     .attr("r", 15)
-    .style("fill", "white")
-    .style("stroke", "black");
+    .style("fill", "white");
 
   dots
     .append("svg:image")
@@ -290,18 +465,23 @@ function updateChart() {
       );
     })
     .on("click", (e) => {
-      let image = document.getElementById("phys-attr-player-img");
-      image.src = `https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/${e.target.__data__.player_id}.png`;
-
-      let playerNameContainer = document.getElementById(
-        "phys-attr-player-name"
+      onClick(e);
+    })
+    .on("mouseover", function (e) {
+      onMouseOver(
+        this,
+        e.target.__data__.player_name,
+        aggrValue,
+        e.target.__data__[aggrValue],
+        attrValue,
+        e.target.__data__[attrValue]
       );
-      playerNameContainer.innerHTML = `&nbsp;${e.target.__data__.first_name} ${e.target.__data__.last_name}`;
-
-      let playerAgeContainer = document.getElementById("phys-attr-player-age");
-      playerAgeContainer.innerHTML = `&nbsp;${getAgeFromBirthdate(
-        e.target.__data__.birthdate
-      )}`;
+    })
+    .on("mouseout", function (d) {
+      onMouseOut(this);
+    })
+    .on("mousemove", function (event, d) {
+      onMouseMove(event);
     });
 
   var yAxis = d3.axisLeft().scale(yScale);
@@ -325,4 +505,17 @@ function updateChart() {
     .call(wrap, xScale.bandwidth());
 
   chart.select("#xAxis").selectAll(".tick text").attr("font-size", "8");
+
+  chart
+    .append("text") // text label for the x axis
+    .attr("x", 400)
+    .attr("y", 530)
+    .style("text-anchor", "middle")
+    .text(LABELS[aggrValue]);
+
+  chart
+    .append("text") // text label for the x axis
+    .style("text-anchor", "middle")
+    .attr("transform", "translate(20,250)rotate(-90)")
+    .text(LABELS[attrValue]);
 }

@@ -6,3 +6,7 @@ body {
   height: 550px;
   width: 750px;
 }
+
+.attr-img-tooltip {
+  padding: 2px;
+}

@@ -8,10 +8,15 @@
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
       crossorigin="anonymous"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" type="text/css" href="style.css" />
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css" />
     <script type="text/javascript" src="physicalAttrScript.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
   </head>
 
   <body>
@@ -20,7 +25,14 @@
         <div class="row">
           <div class="col border-end border-dark">
             <div class="input-group mb-3">
-              <span class="input-group-text">Attribute</span>
+              <span class="input-group-text"
+                >Attribute &nbsp;<i
+                  class="bi bi-info-circle"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="bottom"
+                  title="Select the attribute you would like to compare"
+                ></i
+              ></span>
               <select
                 class="form-select me-2"
                 id="physical-attr-select"
@@ -34,7 +46,14 @@
                   Three Quarter Sprint
                 </option>
               </select>
-              <span class="input-group-text">Aggregate</span>
+              <span class="input-group-text"
+                >Aggregate &nbsp;<i
+                  class="bi bi-info-circle"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="bottom"
+                  title="Select the group you would like to aggregate by"
+                ></i
+              ></span>
               <select
                 class="form-select"
                 id="aggregate-select"
@@ -46,6 +65,7 @@
                 <option value="player_name">Player</option>
               </select>
             </div>
+
             <svg id="PHYS_ATTR_SVG_CONTAINER"></svg>
           </div>
           <div class="col">

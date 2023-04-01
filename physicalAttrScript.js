@@ -2,6 +2,13 @@ let d3 = window.d3;
 
 const THEME_COLOR = "0, 0, 139";
 
+const MARGIN = {
+  LEFT: 50,
+  RIGHT: 50,
+  TOP: 5,
+  BOTTOM: 20,
+};
+
 const LABELS = {
   bench_press: "185 lb Bench Press Repetitions",
   wingspan: "Wingspan(in)",
@@ -34,10 +41,51 @@ let radarChart;
 
 let Tooltip;
 
+let legend;
+
+const width = 700,
+  height = 500;
+
+// to wrap the tick labels
+//referenced fromhttps://gist.github.com/mbostock/7555321
+function wrap(text, width) {
+  text.each(function () {
+    var text = d3.select(this),
+      words = text.text().split(/\s+/).reverse(),
+      word,
+      line = [],
+      lineNumber = 0,
+      lineHeight = 1.1, // ems
+      y = text.attr("y"),
+      dy = parseFloat(text.attr("dy")),
+      tspan = text
+        .text(null)
+        .append("tspan")
+        .attr("x", 0)
+        .attr("y", y)
+        .attr("dy", dy + "em");
+    while ((word = words.pop())) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text
+          .append("tspan")
+          .attr("x", 0)
+          .attr("y", y)
+          .attr("dy", ++lineNumber * lineHeight + dy + "em")
+          .text(word);
+      }
+    }
+  });
+}
+
 function onError(e) {
   e.target.onerror = null;
   e.target.src =
-    "https://cdn.glitch.global/f6d71f37-7469-4731-ad9c-1a479f0ead49/sample_img.png?v=1679344830668";
+    "https://cdn.glitch.global/f6d71f37-7469-4731-ad9c-1a479f0ead49/sample_img.png?v=1680137";
 }
 
 function getAgeFromBirthdate(birthdateStr) {
@@ -51,7 +99,6 @@ function scaleAttrs(value, inMax, inMin, outMax, outMin) {
   value = parseFloat(value);
   let returnVal =
     (value - inMin) * ((outMax - outMin) / (inMax - inMin)) + outMin;
-  console.log(returnVal);
   return !returnVal || returnVal <= 0 ? 50 : parseInt(returnVal);
 }
 
@@ -61,7 +108,8 @@ function onMouseOver(
   aggrLabel,
   aggrValue,
   attrLabel,
-  attrValue
+  attrValue,
+  draftNumber
 ) {
   d3.select(element.parentNode)
     .style("stroke", `rgb(${THEME_COLOR})`)
@@ -69,12 +117,20 @@ function onMouseOver(
 
   if (aggrLabel === "player_name") {
     Tooltip.html(
-      `<p>${TOOLTIP_LABELS[aggrLabel]}: ${aggrValue}<br/>${TOOLTIP_LABELS[attrLabel]}: ${attrValue}</p>`
+      `<p>${TOOLTIP_LABELS[aggrLabel]}: ${aggrValue}<br/>${
+        TOOLTIP_LABELS[attrLabel]
+      }: ${attrValue}<br/>Draft Number: ${
+        isNaN(draftNumber) ? "Undrafted" : draftNumber
+      }</p>`
     ).style("opacity", "1");
     return;
   }
   Tooltip.html(
-    `<p>Name: ${name}<br/>${TOOLTIP_LABELS[attrLabel]}: ${attrValue}<br/>${TOOLTIP_LABELS[aggrLabel]}: ${aggrValue}</p>`
+    `<p>Name: ${name}<br/>${TOOLTIP_LABELS[attrLabel]}: ${attrValue}<br/>${
+      TOOLTIP_LABELS[aggrLabel]
+    }: ${aggrValue}<br/>Draft Number: ${
+      isNaN(draftNumber) ? "Undrafted" : draftNumber
+    }</p>`
   ).style("opacity", "1");
 }
 
@@ -101,20 +157,23 @@ function onClick(e) {
     e.target.__data__.birthdate
   )}`;
 
+  let playerExpContainer = document.getElementById("phys-attr-player-exp");
+  playerExpContainer.innerHTML = `${e.target.__data__.season_exp}`;
+
   chartData = {
     benchpress: e.target.__data__.bench_press,
-    maxVerticalLeap: e.target.__data__.standing_vertical_leap,
+    maxVerticalLeap: e.target.__data__.max_vertical_leap,
     wingspan: e.target.__data__.wingspan,
     threeQuarterSprint: e.target.__data__.three_quarter_sprint,
     height: e.target.__data__.height_wo_shoes,
   };
   (radarChart.data.datasets[0] = {
     data: [
-      scaleAttrs(chartData.benchpress, 29, 0, 100, 0),
-      scaleAttrs(chartData.maxVerticalLeap, 44.5, 22.5, 100, 0),
-      scaleAttrs(chartData.wingspan, 95, 70.75, 100, 0),
-      scaleAttrs(chartData.threeQuarterSprint, 29, 0, 100, 0),
-      scaleAttrs(chartData.height, 95, 60, 100, 0),
+      scaleAttrs(chartData.benchpress, 27.4, 0, 100, 0),
+      scaleAttrs(chartData.maxVerticalLeap, 46, 22.5, 100, 0),
+      scaleAttrs(chartData.wingspan, 97.3, 67.2, 100, 0),
+      scaleAttrs(chartData.threeQuarterSprint, 4, 2.8, 100, 0),
+      scaleAttrs(chartData.height, 87, 64, 100, 0),
     ],
     fill: true,
     backgroundColor: `rgba(${THEME_COLOR}, 0.2)`,
@@ -176,6 +235,13 @@ window.onload = function () {
         legend: {
           display: false,
         },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              return ` ${context.parsed.r}%`;
+            },
+          },
+        },
       },
       scales: {
         r: {
@@ -193,54 +259,13 @@ window.onload = function () {
     document.querySelectorAll('[data-bs-toggle="tooltip"]')
   );
   tooltipTriggerList.map(function (tooltipTriggerEl) {
+    console.log(tooltipTriggerEl);
     return new bootstrap.Tooltip(tooltipTriggerEl);
   });
 };
 
-const MARGIN = {
-  LEFT: 50,
-  RIGHT: 50,
-  TOP: 20,
-  BOTTOM: 20,
-};
-
-const width = 700,
-  height = 500;
-
-// to wrap the tick labels
-//  https://gist.github.com/mbostock/7555321
-function wrap(text, width) {
-  text.each(function () {
-    var text = d3.select(this),
-      words = text.text().split(/\s+/).reverse(),
-      word,
-      line = [],
-      lineNumber = 0,
-      lineHeight = 1.1, // ems
-      y = text.attr("y"),
-      dy = parseFloat(text.attr("dy")),
-      tspan = text
-        .text(null)
-        .append("tspan")
-        .attr("x", 0)
-        .attr("y", y)
-        .attr("dy", dy + "em");
-    while ((word = words.pop())) {
-      line.push(word);
-      tspan.text(line.join(" "));
-      if (tspan.node().getComputedTextLength() > width) {
-        line.pop();
-        tspan.text(line.join(" "));
-        line = [word];
-        tspan = text
-          .append("tspan")
-          .attr("x", 0)
-          .attr("y", y)
-          .attr("dy", ++lineNumber * lineHeight + dy + "em")
-          .text(word);
-      }
-    }
-  });
+function cleanRScale(input) {
+  return isNaN(input) ? 60 : parseInt(input);
 }
 
 setup = function (dataPath) {
@@ -281,6 +306,8 @@ let PhysicalAttrChart = function (data, svg) {
     ])
     .range([height - MARGIN.BOTTOM, MARGIN.TOP]);
 
+  let rScale = d3.scaleLinear().domain([1, 60]).range([22, 12]);
+
   this.draw = function () {
     console.log(data);
 
@@ -311,7 +338,7 @@ let PhysicalAttrChart = function (data, svg) {
       .append("circle")
       .attr("cx", (d, i) => xScale(i) + xScale.bandwidth() / 2)
       .attr("cy", (d) => yScale(d["wingspan"]))
-      .attr("r", 15)
+      .attr("r", (d) => rScale(cleanRScale(d["draft_number"])))
       .style("fill", "white");
 
     dots
@@ -321,14 +348,24 @@ let PhysicalAttrChart = function (data, svg) {
         (d) =>
           `https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/${d["player_id"]}.png`
       )
-      .attr("height", 20)
-      .attr("width", 25)
-      .attr("x", (d, i) => xScale(i) + xScale.bandwidth() / 2 - 13)
-      .attr("y", (d) => yScale(d["wingspan"]) - 11)
+      .attr("height", (d) => rScale(cleanRScale(d["draft_number"])) * 1.4)
+      .attr("width", (d) => rScale(cleanRScale(d["draft_number"])) * 1.7)
+      .attr(
+        "x",
+        (d, i) =>
+          xScale(i) +
+          xScale.bandwidth() / 2 -
+          rScale(cleanRScale(d["draft_number"])) * 0.85
+      )
+      .attr(
+        "y",
+        (d) =>
+          yScale(d["wingspan"]) - rScale(cleanRScale(d["draft_number"])) * 0.7
+      )
       .on("error", function (d) {
         this.setAttribute(
           "href",
-          "https://cdn.glitch.global/3ae5118d-10e7-47f4-942f-74a8d71c1575/sample_image.png?v=1679268087091"
+          "https://cdn.glitch.global/f6d71f37-7469-4731-ad9c-1a479f0ead49/sample_img.png?v=1680137"
         );
       })
       .on("click", (e) => {
@@ -341,7 +378,8 @@ let PhysicalAttrChart = function (data, svg) {
           "country",
           e.target.__data__.country,
           "wingspan",
-          e.target.__data__.wingspan
+          e.target.__data__.wingspan,
+          e.target.__data__.draft_number
         );
       })
       .on("mouseout", function (d) {
@@ -401,6 +439,10 @@ function updateChart() {
   let oldChart = document.getElementById("phys-attr-chart");
   oldChart.remove();
 
+  let extent = 2;
+
+  if (attrValue === "three_quarter_sprint") extent = 0.1;
+
   data = d3
     .groups(globalData, (d) => d[aggrValue])
     .map(
@@ -423,10 +465,12 @@ function updateChart() {
   let yScale = d3
     .scaleLinear()
     .domain([
-      d3.min(data.map((d) => parseFloat(d[attrValue]))) - 2,
-      parseFloat(d3.max(data.map((d) => parseFloat(d[attrValue])))) + 2,
+      d3.min(data.map((d) => parseFloat(d[attrValue]))) - extent,
+      parseFloat(d3.max(data.map((d) => parseFloat(d[attrValue])))) + extent,
     ])
     .range([height - MARGIN.BOTTOM, MARGIN.TOP]);
+
+  let rScale = d3.scaleLinear().domain([1, 60]).range([22, 12]);
 
   //defining an easy reference for out SVG Container
   let svg = d3.select("#PHYS_ATTR_SVG_CONTAINER");
@@ -444,7 +488,7 @@ function updateChart() {
     .append("circle")
     .attr("cx", (d, i) => xScale(i) + xScale.bandwidth() / 2)
     .attr("cy", (d) => yScale(d[attrValue]))
-    .attr("r", 15)
+    .attr("r", (d) => rScale(cleanRScale(d["draft_number"])))
     .style("fill", "white");
 
   dots
@@ -454,14 +498,23 @@ function updateChart() {
       (d) =>
         `https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/${d["player_id"]}.png`
     )
-    .attr("height", 20)
-    .attr("width", 25)
-    .attr("x", (d, i) => xScale(i) + xScale.bandwidth() / 2 - 13)
-    .attr("y", (d) => yScale(d[attrValue]) - 11)
+    .attr("height", (d) => rScale(cleanRScale(d["draft_number"])) * 1.4)
+    .attr("width", (d) => rScale(cleanRScale(d["draft_number"])) * 1.7)
+    .attr(
+      "x",
+      (d, i) =>
+        xScale(i) +
+        xScale.bandwidth() / 2 -
+        rScale(cleanRScale(d["draft_number"])) * 0.85
+    )
+    .attr(
+      "y",
+      (d) => yScale(d[attrValue]) - rScale(cleanRScale(d["draft_number"])) * 0.7
+    )
     .on("error", function (d) {
       this.setAttribute(
         "href",
-        "https://cdn.glitch.global/3ae5118d-10e7-47f4-942f-74a8d71c1575/sample_image.png?v=1679268087091"
+        "https://cdn.glitch.global/f6d71f37-7469-4731-ad9c-1a479f0ead49/sample_img.png?v=1680137"
       );
     })
     .on("click", (e) => {
@@ -474,7 +527,8 @@ function updateChart() {
         aggrValue,
         e.target.__data__[aggrValue],
         attrValue,
-        e.target.__data__[attrValue]
+        e.target.__data__[attrValue],
+        e.target.__data__.draft_number
       );
     })
     .on("mouseout", function (d) {

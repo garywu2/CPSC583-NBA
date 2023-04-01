@@ -62,3 +62,11 @@ body {
 .attr-img-tooltip {
   padding: 2px;
 }
+
+#phys-attr-player-name-label {
+  margin-left: 2rem;
+}
+
+#phys-attr-player-age-label {
+  margin-left: 3rem;
+}

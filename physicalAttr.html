@@ -21,19 +21,10 @@
 
   <body>
     <div class="container">
-      <div class="container mt-5">
-        <p class="fs-3 text-center">Physical Attributes Visuializations</p>
-        <div id="navigation">
-          <p>
-              <a class="navbarPadding" href="index.html">Home</a>|
-              <a class="navbarPadding" href="physicalAttr.html">Physical Attributes</a>|
-              <a class="navbarPadding" href="games.html">Games</a>
-          </p>
-        </div>
-      <div class="container px-0 mx-0 my-0 pt-4 pb-4">
+      <div class="container px-0 mx-0 my-0 pt-1 pb-1">
         <div class="row">
           <div class="col border-end border-dark">
-            <div class="input-group mb-3">
+            <div class="input-group mb-1">
               <span class="input-group-text"
                 >Attribute &nbsp;<i
                   class="bi bi-info-circle"
@@ -74,12 +65,21 @@
                 <option value="player_name">Player</option>
               </select>
             </div>
-
-            <svg id="PHYS_ATTR_SVG_CONTAINER"></svg>
+            <div class="d-flex justify-content-end pt-2 m-0">
+              <p class="border border-dark px-2 py-1 m-0 bg-white">
+                Bubble Size: Draft Number&nbsp;<i
+                  class="bi bi-info-circle"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="bottom"
+                  title="The higher the draft number, the lower the bubble size"
+                ></i>
+              </p>
+            </div>
+            <svg id="PHYS_ATTR_SVG_CONTAINER" class="m-0 p-0"></svg>
           </div>
-          <div class="col">
+          <div class="col pt-4">
             <img
-              src="https://cdn.glitch.global/f6d71f37-7469-4731-ad9c-1a479f0ead49/sample_img.png?v=1679344830668"
+              src="https://cdn.glitch.global/f6d71f37-7469-4731-ad9c-1a479f0ead49/sample_img.png?v=1680137"
               height="150px"
               width="180px"
               id="phys-attr-player-img"
@@ -90,12 +90,16 @@
             </div>
             <div class="mt-2 text-center container align-middle">
               <div class="container d-flex align-items-center p-0 m-0">
-                <p>Name:</p>
-                <p id="phys-attr-player-name" class="fs-3"></p>
+                <p id="phys-attr-player-name-label">Name:</p>
+                <p id="phys-attr-player-name" class="fs-4"></p>
               </div>
               <div class="container d-flex align-items-center p-0 m-0">
-                <p class="ps-3">Age:</p>
-                <p id="phys-attr-player-age" class="fs-3"></p>
+                <p id="phys-attr-player-age-label">Age:</p>
+                <p id="phys-attr-player-age" class="fs-4"></p>
+              </div>
+              <div class="container d-flex align-items-center p-0 m-0">
+                <p class="text-end w-25 fs-8">Season Experience:</p>
+                <p id="phys-attr-player-exp" class="fs-4 ms-3"></p>
               </div>
             </div>
           </div>

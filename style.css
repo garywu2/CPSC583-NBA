@@ -6,7 +6,6 @@ body {
   height: 550px;
   width: 750px;
 }
-<<<<<<< HEAD
 #navigation {
 	width: 1000px;
 	height: 30px;
@@ -59,9 +58,7 @@ body {
   display: flex;
   justify-content: center;
 }
-=======
 
 .attr-img-tooltip {
   padding: 2px;
 }
->>>>>>> a622acf0b955b9a5a23a16fa2e5ea223ecfda1bc

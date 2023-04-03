@@ -15,7 +15,7 @@
     <link rel="stylesheet" type="text/css" href="style.css" />
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="text/javascript" src="physicalAttrScript.js"></script>
+    <script type="text/javascript" src="gamesScript.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
   </head>
 
@@ -45,80 +45,64 @@
           <div class="col border-end border-dark">
             <div class="input-group mb-1">
               <span class="input-group-text"
-                >Attribute &nbsp;<i
+                >Game &nbsp;<i
                   class="bi bi-info-circle"
                   data-bs-toggle="tooltip"
                   data-bs-placement="bottom"
-                  title="Select the attribute you would like to compare"
-                ></i
-              ></span>
-              <select
-                class="form-select me-2"
-                id="physical-attr-select"
-                onchange="updateChart()"
-              >
-                <option value="bench_press">Benchpress</option>
-                <option value="max_vertical_leap">Max Vertical Leap</option>
-                <option selected value="wingspan">Wingspan</option>
-                <option value="height_wo_shoes">Height</option>
-                <option value="three_quarter_sprint">
-                  Three Quarter Sprint
-                </option>
-              </select>
-              <span class="input-group-text"
-                >Aggregate &nbsp;<i
-                  class="bi bi-info-circle"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="bottom"
-                  title="Select the group you would like to aggregate by"
+                  id="gameSelector"
+                  title="Select the game you would like to view"
                 ></i
               ></span>
               <select
                 class="form-select"
-                id="aggregate-select"
+                id="game-select"
                 onchange="updateChart()"
               >
-                <option selected value="country">Birth Country</option>
-                <option value="team_city">Team City</option>
-                <option value="team_name">Team</option>
-                <option value="player_name">Player</option>
               </select>
             </div>
-            <div class="d-flex justify-content-end pt-2 m-0">
-              <p class="border border-dark px-2 py-1 m-0 bg-white">
-                Bubble Size: Draft Number&nbsp;<i
+            <svg id="GAMES_SVG_CONTAINER" class="m-0 p-0"></svg>
+            <!-- Total number of wins by ome is 24746 out of 41058 -->
+            <h5>Percentage of games won by Home Team: 39.7%</h5>
+            <h5>Percentage of games won by Away Team: 60.3%</h5>
+          </div>
+          <div class="col pt-0">
+            <div class="row">
+              <div class="col border-end border-dark">
+                <div class="input-group mb-1">
+            <span class="input-group-text"
+                >Team &nbsp;<i
                   class="bi bi-info-circle"
                   data-bs-toggle="tooltip"
                   data-bs-placement="bottom"
-                  title="The higher the draft number, the lower the bubble size"
-                ></i>
-              </p>
+                  title="Select Home or Away Team Stats"
+                ></i
+              ></span>
+              <select
+                class="form-select me-2"
+                id="team-select"
+                onchange="updateGraph()"
+              >
+                <option value="home">Home</option>
+                <option value="away">Away</option>
+              </select>
             </div>
-            <svg id="PHYS_ATTR_SVG_CONTAINER" class="m-0 p-0"></svg>
           </div>
-          <div class="col pt-4">
-            <img
-              src="https://cdn.glitch.global/f6d71f37-7469-4731-ad9c-1a479f0ead49/sample_img.png?v=1680137"
-              height="150px"
-              width="180px"
-              id="phys-attr-player-img"
-              class="mx-auto d-block rounded"
-            />
+        </div>
             <div class="pt-2">
-              <canvas id="myChart" height="250px"></canvas>
+              <svg id="pie-chart" width="500" height="500"></svg>
             </div>
             <div class="mt-2 text-center container align-middle">
               <div class="container d-flex align-items-center p-0 m-0">
-                <p id="phys-attr-player-name-label">Name:</p>
-                <p id="phys-attr-player-name" class="fs-4"></p>
+                <p id="phys-attr-player-name-label">Three Pointer %:</p>
+                <p id="games-three-pointer" class="fs-4"></p>
               </div>
               <div class="container d-flex align-items-center p-0 m-0">
-                <p id="phys-attr-player-age-label">Age:</p>
-                <p id="phys-attr-player-age" class="fs-4"></p>
+                <p id="phys-attr-player-age-label">Two Pointer %:</p>
+                <p id="games-two-pointer" class="fs-4"></p>
               </div>
               <div class="container d-flex align-items-center p-0 m-0">
-                <p class="text-end w-25 fs-8">Season Experience:</p>
-                <p id="phys-attr-player-exp" class="fs-4 ms-3"></p>
+                <p id="phys-attr-player-age-label">Free Throw %:</p>
+                <p id="games-one-pointer" class="fs-4"></p>
               </div>
             </div>
           </div>

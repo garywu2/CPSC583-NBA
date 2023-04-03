@@ -170,10 +170,10 @@ const onYColumnClicked = (column) => {
   render();
 };
 
-const onNColumnClicked = (column) => {
-  n = column;
-  render();
-};
+// const onNColumnClicked = (column) => {
+//   n = column;
+//   render();
+// };
 
 setup = function (dataPath) {
   svg = d3.select("#SVG_CONTAINER");
@@ -182,8 +182,8 @@ setup = function (dataPath) {
   d3.csv(dataPath).then(function (loadedData) {
     console.log(loadedData);
     fullData = loadedData;
-    data = loadedData.slice(0, n);
-    let dataS = loadedData.slice(0, 25);
+    data = loadedData.slice(0, 25);
+    // let dataS = loadedData.slice(0, 25);
     // data = loadedData.slice(0,25);
     // let col = data.columns;
     // // data.filter(function (d, i) {
@@ -209,7 +209,7 @@ setup = function (dataPath) {
     console.log(data.columns);
     render();
 
-    let _SlopeChart = new SlopeChart(dataS);
+    let _SlopeChart = new SlopeChart();
   });
 };
 
@@ -229,14 +229,14 @@ render = function () {
     selectedOption: yColumn,
   });
 
-  d3.select("#n-menu").call(dropdownMenu, {
-    // options: data.columns,
-    options: ["10", "25", "50"],
-    onOptionClicked: onNColumnClicked,
-    selectedOption: n,
-  });
+  // d3.select("#n-menu").call(dropdownMenu, {
+  //   // options: data.columns,
+  //   options: ["10", "25", "50"],
+  //   onOptionClicked: onNColumnClicked,
+  //   selectedOption: n,
+  // });
 
-  data = fullData.slice(0, n);
+  // data = fullData.slice(0, n);
 
   svg.call(scatterPlot, {
     // ID: (d) => d["ID"],
@@ -257,7 +257,7 @@ var marginS = { top: 80, right: 20, bottom: 10, left: 20 },
   widthS = 1000 - marginS.left - marginS.right,
   heightS = 800 - marginS.top - marginS.bottom;
 
-let SlopeChart = function (dataS) {
+let SlopeChart = function () {
   var svg = d3
     .select("#my_dataviz")
     .append("svg")
@@ -266,7 +266,7 @@ let SlopeChart = function (dataS) {
     .append("g")
     .attr("transform", "translate(" + marginS.left + "," + marginS.top + ")");
 
-  console.log(dataS);
+  console.log(data);
   dimensions = ["Points", "Rebounds", "Assists"];
   console.log(dimensions);
 
@@ -277,7 +277,7 @@ let SlopeChart = function (dataS) {
     y[n] = d3
       .scaleLinear()
       .domain(
-        d3.extent(dataS, function (d) {
+        d3.extent(data, function (d) {
           return +d[n];
         })
       )
@@ -326,7 +326,7 @@ let SlopeChart = function (dataS) {
   // Draw the lines
   svg
     .selectAll("myPath")
-    .data(dataS)
+    .data(data)
     .enter()
     .append("path")
     .attr("d", path)

@@ -11,6 +11,11 @@ const MARGIN = {
   BOTTOM: 20,
 };
 
+function checkValue(value) {
+  if (value === "0" || !value) return false;
+  return true;
+}
+
 const LABELS = {
   home: "Home",
   away: "Away",
@@ -116,6 +121,11 @@ function onMouseOut(element) {
   barTooltip.style("opacity", "0");
 }
 
+function onMouseOutPie(element) {
+  d3.select(element).style("stroke", "None");
+  barTooltip.style("opacity", "0");
+}
+
 setup = function (dataPath) {
   //defining an easy reference for out SVG Container
   let SVG = d3.select("#GAMES_SVG_CONTAINER");
@@ -204,19 +214,43 @@ let PhysicalAttrChart = function (data, svg) {
 
     var dataSepTotalGraph = [
       {
-        teamName: "Three Pointers",
-        totalptsH: data[0][1][0]["fg3m_home"],
-        totalptsA: data[0][1][0]["fg3m_away"],
+        label: "1-pt Home",
+        data: data[0][1][0]["ft_pct_home"] * 100,
       },
       {
-        teamName: "Two Pointers",
-        totalptsH: data[0][1][0]["fgm_home"],
-        totalptsA: data[0][1][0]["fgm_away"],
+        label: "1-pt Away",
+        data: data[0][1][0]["ft_pct_away"] * 100,
+      },
+    ];
+
+    var dataSepTotalGraph_2pt = [
+      {
+        label: "2-pt Home",
+        data: data[0][1][0]["fg_pct_home"] * 100,
       },
       {
-        teamName: "Free Throw",
-        totalptsH: data[0][1][0]["ftm_home"],
-        totalptsA: data[0][1][0]["ftm_away"],
+        label: "2-pt Away",
+        data: data[0][1][0]["fg_pct_away"] * 100,
+      },
+    ];
+    console.log(data[0][1][0]["fg3_pct_away"], data[0][1][0]["fg3_pct_home"]);
+
+    var dataSepTotalGraph_3pt = [
+      {
+        label: "3-pt Home",
+        data:
+          !checkValue(data[0][1][0]["fg3_pct_home"]) &&
+          !checkValue(data[0][1][0]["fg3_pct_away"])
+            ? 50
+            : data[0][1][0]["fg3_pct_home"] * 100,
+      },
+      {
+        label: "3-pt Away",
+        data:
+          !checkValue(data[0][1][0]["fg3_pct_home"]) &&
+          !checkValue(data[0][1][0]["fg3_pct_away"])
+            ? 50
+            : data[0][1][0]["fg3_pct_away"] * 100,
       },
     ];
 
@@ -407,10 +441,10 @@ let PhysicalAttrChart = function (data, svg) {
           : d["teamName"] + " (Away)";
       });
 
-    var outerRadius = 500 / 2,
+    var outerRadius = 250 / 2,
       innerRadius = outerRadius * 0.999;
     var pie = d3.pie().value(function (d, i) {
-      return d["totalptsH"];
+      return d["data"];
     });
 
     var arcs = pie(dataSepTotalGraph);
@@ -419,17 +453,17 @@ let PhysicalAttrChart = function (data, svg) {
     var arc = d3
       .arc()
       .innerRadius(0)
-      .outerRadius(150)
+      .outerRadius(80)
       .padAngle(0.03)
-      .padRadius(100)
+      .padRadius(70)
       .cornerRadius(4);
 
-    var arcLabels = d3.arc().innerRadius(200).outerRadius(200);
+    var arcLabels = d3.arc().innerRadius(120).outerRadius(120);
 
     var svgp2 = d3.select("#pie-chart");
-    let piGra = svgp2.append("g").attr("id", "games-pi");
+    let piGra = svgp2.append("g").attr("id", "games-pi-1");
 
-    var pieChart = piGra.append("g").attr("transform", "translate(250, 250)");
+    var pieChart = piGra.append("g").attr("transform", "translate(250, 100)");
 
     pieChart
       .selectAll("path")
@@ -441,7 +475,21 @@ let PhysicalAttrChart = function (data, svg) {
         return d3.schemeCategory10[i];
       })
       .attr("stroke", "#fff")
-      .attr("stroke-width", 2);
+      .attr("stroke-width", 2)
+      .on("mouseover", function (e, d) {
+        onMouseOver(
+          this,
+          d.data["label"],
+          `${d.data["data"].toFixed(2)}%`,
+          "black"
+        );
+      })
+      .on("mouseout", function (d) {
+        onMouseOutPie(this);
+      })
+      .on("mousemove", function (event, d) {
+        onMouseMove(event);
+      });
 
     pieChart
       .selectAll("text")
@@ -454,17 +502,147 @@ let PhysicalAttrChart = function (data, svg) {
       .attr("text-anchor", "middle")
       .attr("font-size", "1.1em")
       .text(function (d, i) {
-        return d.data["teamName"];
+        return d.data["label"];
       });
 
-    let playerNameContainer = document.getElementById("games-three-pointer");
-    playerNameContainer.innerHTML = "&nbsp  " + threePtPer + "%";
+    //2 pt
+    var pie_2pt = d3.pie().value(function (d, i) {
+      return d["data"];
+    });
 
-    let playerAgeContainer = document.getElementById("games-two-pointer");
-    playerAgeContainer.innerHTML = "&nbsp  " + twoPtPer + "%";
+    var arcs_2pt = pie(dataSepTotalGraph_2pt);
+    console.log(dataSepTotalGraph_2pt);
 
-    let playerExpContainer = document.getElementById("games-one-pointer");
-    playerExpContainer.innerHTML = "&nbsp  " + onePtPer + "%";
+    var arc_2pt = d3
+      .arc()
+      .innerRadius(0)
+      .outerRadius(80)
+      .padAngle(0.03)
+      .padRadius(70)
+      .cornerRadius(4);
+
+    var arcLabels_2pt = d3.arc().innerRadius(120).outerRadius(120);
+
+    var svgp2_2pt = d3.select("#pie-chart");
+    let piGra_2pt = svgp2_2pt.append("g").attr("id", "games-pi-2");
+
+    var pieChart_2pt = piGra_2pt
+      .append("g")
+      .attr("transform", "translate(250, 350)");
+
+    pieChart_2pt
+      .selectAll("path")
+      .data(arcs_2pt)
+      .enter()
+      .append("path")
+      .attr("d", arc_2pt)
+      .attr("fill", function (d, i) {
+        return d3.schemeCategory10[i];
+      })
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 2)
+      .on("mouseover", function (e, d) {
+        onMouseOver(
+          this,
+          d.data["label"],
+          `${d.data["data"].toFixed(2)}%`,
+          "black"
+        );
+      })
+      .on("mouseout", function (d) {
+        onMouseOutPie(this);
+      })
+      .on("mousemove", function (event, d) {
+        onMouseMove(event);
+      });
+
+    pieChart_2pt
+      .selectAll("text")
+      .data(arcs_2pt)
+      .enter()
+      .append("text")
+      .attr("transform", function (d) {
+        return "translate(" + arcLabels_2pt.centroid(d) + ")";
+      })
+      .attr("text-anchor", "middle")
+      .attr("font-size", "1.1em")
+      .text(function (d, i) {
+        return d.data["label"];
+      });
+
+    //3 pt
+    var pie_3pt = d3.pie().value(function (d, i) {
+      return d["data"];
+    });
+
+    var arcs_3pt = pie(dataSepTotalGraph_3pt);
+    console.log(dataSepTotalGraph_3pt);
+
+    var arc_3pt = d3
+      .arc()
+      .innerRadius(0)
+      .outerRadius(80)
+      .padAngle(0.03)
+      .padRadius(70)
+      .cornerRadius(4);
+
+    var arcLabels_3pt = d3.arc().innerRadius(120).outerRadius(120);
+
+    var svgp2_3pt = d3.select("#pie-chart");
+    let piGra_3pt = svgp2_3pt.append("g").attr("id", "games-pi-3");
+
+    var pieChart_3pt = piGra_3pt
+      .append("g")
+      .attr("transform", "translate(250, 600)");
+
+    pieChart_3pt
+      .selectAll("path")
+      .data(arcs_3pt)
+      .enter()
+      .append("path")
+      .attr("d", arc_3pt)
+      .attr("fill", function (d, i) {
+        return d3.schemeCategory10[i];
+      })
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 2)
+      .on("mouseover", function (e, d) {
+        onMouseOver(
+          this,
+          d.data["label"],
+          `${d.data["data"].toFixed(2)}%`,
+          "black"
+        );
+      })
+      .on("mouseout", function (d) {
+        onMouseOutPie(this);
+      })
+      .on("mousemove", function (event, d) {
+        onMouseMove(event);
+      });
+
+    pieChart_3pt
+      .selectAll("text")
+      .data(arcs_3pt)
+      .enter()
+      .append("text")
+      .attr("transform", function (d) {
+        return "translate(" + arcLabels_3pt.centroid(d) + ")";
+      })
+      .attr("text-anchor", "middle")
+      .attr("font-size", "1.1em")
+      .text(function (d, i) {
+        return d.data["label"];
+      });
+
+    // let playerNameContainer = document.getElementById("games-three-pointer");
+    // playerNameContainer.innerHTML = "&nbsp  " + threePtPer + "%";
+
+    // let playerAgeContainer = document.getElementById("games-two-pointer");
+    // playerAgeContainer.innerHTML = "&nbsp  " + twoPtPer + "%";
+
+    // let playerExpContainer = document.getElementById("games-one-pointer");
+    // playerExpContainer.innerHTML = "&nbsp  " + onePtPer + "%";
   };
 };
 
@@ -473,44 +651,63 @@ function updateGraph() {
   let SVG = d3.select("#GAMES_SVG_CONTAINER");
   var game = document.getElementById("game-select");
   var gameData = game[game.selectedIndex].getAttribute("game_id");
-  let oldChart = document.getElementById("games-pi");
-  oldChart.remove();
-  let currTeam = document.getElementById("team-select");
-  let getActTeam = currTeam.value;
-  console.log(getActTeam);
+
+  document.getElementById("games-pi-1").remove();
+  document.getElementById("games-pi-2").remove();
+  document.getElementById("games-pi-3").remove();
+
   var dataSepTotalGraph;
-  var threePtPer;
-  var twoPtPer;
-  var onePtPer;
   data = d3.groups(data, (d) => d.game_id).slice(0, 1000);
 
   var filtered = data.filter(function (d) {
     return d[1][0]["game_id"] === gameData;
   });
-  if (getActTeam === "home") {
-    dataSepTotalGraph = [
-      { teamName: "Three Pointers", totalpts: filtered[0][1][0]["fg3m_home"] },
-      { teamName: "Two Pointers", totalpts: filtered[0][1][0]["fgm_home"] },
-      { teamName: "Free Throw", totalpts: filtered[0][1][0]["ftm_home"] },
-    ];
-    threePtPer = filtered[0][1][0]["fg3_pct_home"] * 100;
-    twoPtPer = filtered[0][1][0]["fg_pct_home"] * 100;
-    onePtPer = filtered[0][1][0]["ft_pct_home"] * 100;
-  }
-  if (getActTeam === "away") {
-    dataSepTotalGraph = [
-      { teamName: "Three Pointers", totalpts: filtered[0][1][0]["fg3m_away"] },
-      { teamName: "Two Pointers", totalpts: filtered[0][1][0]["fgm_away"] },
-      { teamName: "Free Throw", totalpts: filtered[0][1][0]["ftm_away"] },
-    ];
-    threePtPer = filtered[0][1][0]["fg3_pct_away"] * 100;
-    twoPtPer = filtered[0][1][0]["fg_pct_away"] * 100;
-    onePtPer = filtered[0][1][0]["ft_pct_away"] * 100;
-  }
-  var outerRadius = 500 / 2,
+
+  var dataSepTotalGraph = [
+    {
+      label: "1-pt Home",
+      data: filtered[0][1][0]["ft_pct_home"] * 100,
+    },
+    {
+      label: "1-pt Away",
+      data: filtered[0][1][0]["ft_pct_away"] * 100,
+    },
+  ];
+
+  var dataSepTotalGraph_2pt = [
+    {
+      label: "2-pt Home",
+      data: filtered[0][1][0]["fg_pct_home"] * 100,
+    },
+    {
+      label: "2-pt Away",
+      data: filtered[0][1][0]["fg_pct_away"] * 100,
+    },
+  ];
+
+  var dataSepTotalGraph_3pt = [
+    {
+      label: "3-pt Home",
+      data:
+        !checkValue(filtered[0][1][0]["fg3_pct_home"]) &&
+        !checkValue(filtered[0][1][0]["fg3_pct_away"])
+          ? 50
+          : filtered[0][1][0]["fg3_pct_home"] * 100,
+    },
+    {
+      label: "3-pt Away",
+      data:
+        !checkValue(filtered[0][1][0]["fg3_pct_home"]) &&
+        !checkValue(filtered[0][1][0]["fg3_pct_away"])
+          ? 50
+          : filtered[0][1][0]["fg3_pct_away"] * 100,
+    },
+  ];
+
+  var outerRadius = 250 / 2,
     innerRadius = outerRadius * 0.999;
   var pie = d3.pie().value(function (d, i) {
-    return d["totalpts"];
+    return d["data"];
   });
 
   var arcs = pie(dataSepTotalGraph);
@@ -519,17 +716,17 @@ function updateGraph() {
   var arc = d3
     .arc()
     .innerRadius(0)
-    .outerRadius(150)
+    .outerRadius(80)
     .padAngle(0.03)
-    .padRadius(100)
+    .padRadius(70)
     .cornerRadius(4);
 
-  var arcLabels = d3.arc().innerRadius(200).outerRadius(200);
+  var arcLabels = d3.arc().innerRadius(120).outerRadius(120);
 
   var svgp2 = d3.select("#pie-chart");
-  let piGra = svgp2.append("g").attr("id", "games-pi");
+  let piGra = svgp2.append("g").attr("id", "games-pi-1");
 
-  var pieChart = piGra.append("g").attr("transform", "translate(250, 250)");
+  var pieChart = piGra.append("g").attr("transform", "translate(250, 100)");
 
   pieChart
     .selectAll("path")
@@ -541,7 +738,21 @@ function updateGraph() {
       return d3.schemeCategory10[i];
     })
     .attr("stroke", "#fff")
-    .attr("stroke-width", 2);
+    .attr("stroke-width", 2)
+    .on("mouseover", function (e, d) {
+      onMouseOver(
+        this,
+        d.data["label"],
+        `${d.data["data"].toFixed(2)}%`,
+        "black"
+      );
+    })
+    .on("mouseout", function (d) {
+      onMouseOutPie(this);
+    })
+    .on("mousemove", function (event, d) {
+      onMouseMove(event);
+    });
 
   pieChart
     .selectAll("text")
@@ -554,18 +765,147 @@ function updateGraph() {
     .attr("text-anchor", "middle")
     .attr("font-size", "1.1em")
     .text(function (d, i) {
-      console.log(d.data["teamName"]);
-      return d.data["teamName"];
+      return d.data["label"];
     });
 
-  let playerNameContainer = document.getElementById("games-three-pointer");
-  playerNameContainer.innerHTML = "&nbsp  " + threePtPer + "%";
+  //2 pt
+  var pie_2pt = d3.pie().value(function (d, i) {
+    return d["data"];
+  });
 
-  let playerAgeContainer = document.getElementById("games-two-pointer");
-  playerAgeContainer.innerHTML = "&nbsp  " + twoPtPer + "%";
+  var arcs_2pt = pie(dataSepTotalGraph_2pt);
+  console.log(dataSepTotalGraph_2pt);
 
-  let playerExpContainer = document.getElementById("games-one-pointer");
-  playerExpContainer.innerHTML = "&nbsp  " + onePtPer + "%";
+  var arc_2pt = d3
+    .arc()
+    .innerRadius(0)
+    .outerRadius(80)
+    .padAngle(0.03)
+    .padRadius(70)
+    .cornerRadius(4);
+
+  var arcLabels_2pt = d3.arc().innerRadius(120).outerRadius(120);
+
+  var svgp2_2pt = d3.select("#pie-chart");
+  let piGra_2pt = svgp2_2pt.append("g").attr("id", "games-pi-2");
+
+  var pieChart_2pt = piGra_2pt
+    .append("g")
+    .attr("transform", "translate(250, 350)");
+
+  pieChart_2pt
+    .selectAll("path")
+    .data(arcs_2pt)
+    .enter()
+    .append("path")
+    .attr("d", arc_2pt)
+    .attr("fill", function (d, i) {
+      return d3.schemeCategory10[i];
+    })
+    .attr("stroke", "#fff")
+    .attr("stroke-width", 2)
+    .on("mouseover", function (e, d) {
+      onMouseOver(
+        this,
+        d.data["label"],
+        `${d.data["data"].toFixed(2)}%`,
+        "black"
+      );
+    })
+    .on("mouseout", function (d) {
+      onMouseOutPie(this);
+    })
+    .on("mousemove", function (event, d) {
+      onMouseMove(event);
+    });
+
+  pieChart_2pt
+    .selectAll("text")
+    .data(arcs_2pt)
+    .enter()
+    .append("text")
+    .attr("transform", function (d) {
+      return "translate(" + arcLabels_2pt.centroid(d) + ")";
+    })
+    .attr("text-anchor", "middle")
+    .attr("font-size", "1.1em")
+    .text(function (d, i) {
+      return d.data["label"];
+    });
+
+  //3 pt
+  var pie_3pt = d3.pie().value(function (d, i) {
+    return d["data"];
+  });
+
+  var arcs_3pt = pie(dataSepTotalGraph_3pt);
+  console.log(dataSepTotalGraph_3pt);
+
+  var arc_3pt = d3
+    .arc()
+    .innerRadius(0)
+    .outerRadius(80)
+    .padAngle(0.03)
+    .padRadius(70)
+    .cornerRadius(4);
+
+  var arcLabels_3pt = d3.arc().innerRadius(120).outerRadius(120);
+
+  var svgp2_3pt = d3.select("#pie-chart");
+  let piGra_3pt = svgp2_3pt.append("g").attr("id", "games-pi-3");
+
+  var pieChart_3pt = piGra_3pt
+    .append("g")
+    .attr("transform", "translate(250, 600)");
+
+  pieChart_3pt
+    .selectAll("path")
+    .data(arcs_3pt)
+    .enter()
+    .append("path")
+    .attr("d", arc_3pt)
+    .attr("fill", function (d, i) {
+      return d3.schemeCategory10[i];
+    })
+    .attr("stroke", "#fff")
+    .attr("stroke-width", 2)
+    .on("mouseover", function (e, d) {
+      onMouseOver(
+        this,
+        d.data["label"],
+        `${d.data["data"].toFixed(2)}%`,
+        "black"
+      );
+    })
+    .on("mouseout", function (d) {
+      onMouseOutPie(this);
+    })
+    .on("mousemove", function (event, d) {
+      onMouseMove(event);
+    });
+
+  pieChart_3pt
+    .selectAll("text")
+    .data(arcs_3pt)
+    .enter()
+    .append("text")
+    .attr("transform", function (d) {
+      return "translate(" + arcLabels_3pt.centroid(d) + ")";
+    })
+    .attr("text-anchor", "middle")
+    .attr("font-size", "1.1em")
+    .text(function (d, i) {
+      return d.data["label"];
+    });
+
+  // let playerNameContainer = document.getElementById("games-three-pointer");
+  // playerNameContainer.innerHTML = "&nbsp  " + threePtPer + "%";
+
+  // let playerAgeContainer = document.getElementById("games-two-pointer");
+  // playerAgeContainer.innerHTML = "&nbsp  " + twoPtPer + "%";
+
+  // let playerExpContainer = document.getElementById("games-one-pointer");
+  // playerExpContainer.innerHTML = "&nbsp  " + onePtPer + "%";
 }
 
 function updateChart(e) {

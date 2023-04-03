@@ -156,8 +156,9 @@ const height = 500;
 
 let data;
 let svg;
-let xColumn;
-let yColumn;
+let xColumn = "Minutes";
+let yColumn = "Points";
+let n = 10;
 
 const onXColumnClicked = (column) => {
   xColumn = column;
@@ -169,13 +170,20 @@ const onYColumnClicked = (column) => {
   render();
 };
 
+const onNColumnClicked = (column) => {
+  n = column;
+  render();
+};
+
 setup = function (dataPath) {
   svg = d3.select("#SVG_CONTAINER");
   // let svgS = d3.select("#my_dataviz");
 
   d3.csv(dataPath).then(function (loadedData) {
     console.log(loadedData);
-    data = loadedData;
+    fullData = loadedData;
+    data = loadedData.slice(0, n);
+    let dataS = loadedData.slice(0, 25);
     // data = loadedData.slice(0,25);
     // let col = data.columns;
     // // data.filter(function (d, i) {
@@ -194,14 +202,14 @@ setup = function (dataPath) {
       d.ID = +d.ID;
     });
 
-    xColumn = data.columns[1];
-    yColumn = data.columns[2];
+    // xColumn = data.columns[1];
+    // yColumn = data.columns[2];
 
     console.log(data);
     console.log(data.columns);
     render();
 
-    let _SlopeChart = new SlopeChart();
+    let _SlopeChart = new SlopeChart(dataS);
   });
 };
 
@@ -220,6 +228,15 @@ render = function () {
     onOptionClicked: onYColumnClicked,
     selectedOption: yColumn,
   });
+
+  d3.select("#n-menu").call(dropdownMenu, {
+    // options: data.columns,
+    options: ["10", "25", "50"],
+    onOptionClicked: onNColumnClicked,
+    selectedOption: n,
+  });
+
+  data = fullData.slice(0, n);
 
   svg.call(scatterPlot, {
     // ID: (d) => d["ID"],
@@ -240,7 +257,7 @@ var marginS = { top: 80, right: 20, bottom: 10, left: 20 },
   widthS = 1000 - marginS.left - marginS.right,
   heightS = 800 - marginS.top - marginS.bottom;
 
-let SlopeChart = function () {
+let SlopeChart = function (dataS) {
   var svg = d3
     .select("#my_dataviz")
     .append("svg")
@@ -249,7 +266,7 @@ let SlopeChart = function () {
     .append("g")
     .attr("transform", "translate(" + marginS.left + "," + marginS.top + ")");
 
-  console.log(data);
+  console.log(dataS);
   dimensions = ["Points", "Rebounds", "Assists"];
   console.log(dimensions);
 
@@ -260,7 +277,7 @@ let SlopeChart = function () {
     y[n] = d3
       .scaleLinear()
       .domain(
-        d3.extent(data, function (d) {
+        d3.extent(dataS, function (d) {
           return +d[n];
         })
       )
@@ -271,7 +288,7 @@ let SlopeChart = function () {
   x = d3.scalePoint().range([0, widthS]).padding(1).domain(dimensions);
 
   // var highlight = function (d) {
-  //   // selected_path = d.ID;
+  //   selected_path = d.Points;
   //   console.log(d);
   //   // first every group turns grey
   //   d3.selectAll(".line")
@@ -280,7 +297,7 @@ let SlopeChart = function () {
   //     .style("stroke", "lightgrey")
   //     .style("opacity", "0.2");
   //   // // Second the hovered specie takes its color
-  //   d3.selectAll("." + d)
+  //   d3.selectAll("." + d.Points)
   //     .transition()
   //     .duration(200)
   //     .style("stroke", "red") //#69b3a2
@@ -293,9 +310,7 @@ let SlopeChart = function () {
   //     .transition()
   //     .duration(200)
   //     .delay(1000)
-  //     .style("stroke", function (d) {
-  //       return color(d.Species);
-  //     })
+  //     .style("stroke", "red")
   //     .style("opacity", "1");
   // };
 
@@ -311,11 +326,16 @@ let SlopeChart = function () {
   // Draw the lines
   svg
     .selectAll("myPath")
-    .data(data)
+    .data(dataS)
     .enter()
     .append("path")
-    // .attr(("class", function (d) { return "line " + d.Points } ))
     .attr("d", path)
+    // .attr(
+    //   ("class",
+    //   function (d) {
+    //     return "line " + d.Points
+    //   })
+    // )
     .style("fill", "none")
     .style("stroke", "#69b3a2")
     .style("stroke-width", "2")
@@ -323,7 +343,7 @@ let SlopeChart = function () {
     // .on("mouseover", highlight)
     // .on("mouseleave", doNotHighlight)
     .on("click", () => {
-      console.log();
+      console.log("click");
     });
 
   // Draw the axis:

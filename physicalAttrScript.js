@@ -138,10 +138,10 @@ function onMouseMove(event) {
   Tooltip.style("left", event.layerX + "px").style("top", event.layerY + "px");
 }
 
-function onMouseOut(element) {
+function onMouseOut(element, flag) {
   d3.select(element.parentNode)
     .style("stroke-width", "1")
-    .style("stroke", "black");
+    .style("stroke", flag === "Y" ? "gold" : "black");
   Tooltip.style("opacity", "0");
 }
 
@@ -383,7 +383,7 @@ let PhysicalAttrChart = function (data, svg) {
         );
       })
       .on("mouseout", function (d) {
-        onMouseOut(this);
+        onMouseOut(this, d.target.__data__.greatest_75_flag);
       })
       .on("mousemove", function (event, d) {
         onMouseMove(event);
@@ -421,12 +421,42 @@ let PhysicalAttrChart = function (data, svg) {
       .style("text-anchor", "middle")
       .text("Birth Country");
 
+    // text label for the x axis
     chart
-      .append("text") // text label for the x axis
+      .append("text")
       .style("text-anchor", "middle")
       .attr("transform", "translate(20,250)rotate(-90)")
       .text("Wingspan(in)");
   };
+
+  let tooltipWrapper = svg
+    .append("g")
+    .on("mouseover", function (e) {
+      Tooltip.html(
+        '<svg height="160" width="190"><text x="2" y="15" font-weight="bold">Bubble Size</text><text x="100" y="15" font-weight="bold">Draft #</text><circle cx="30" cy="55" r="22" stroke="black" stroke-width="1" fill="white" /><circle cx="30" cy="100" r="12" stroke="black" stroke-width="1" fill="white" /> <text x="100" y="60">1</text> <text x="80" y="110">Undrafted</text><line x1="1" x2="200" y1="120" y2="120" style="stroke:rgb(0,0,0)"/><circle cx="30" cy="140" r="15" stroke="gold" stroke-width="1" fill="white"/><text x="60" y="145" f>Greatest 75 Player</text></svg>'
+      ).style("opacity", 1);
+    })
+    .on("mousemove", function (event) {
+      Tooltip.style("left", event.layerX + "px").style(
+        "top",
+        event.layerY - 150 + "px"
+      );
+    })
+    .on("mouseout", function (d) {
+      Tooltip.style("opacity", 0);
+    });
+
+  tooltipWrapper
+    .append("circle")
+    .attr("cx", 100)
+    .attr("cy", 525)
+    .attr("r", 8)
+    .style("stroke", "black")
+    .style("fill", "None");
+
+  tooltipWrapper.append("text").attr("x", 98).attr("y", 530).text("i");
+
+  svg.append("text").attr("x", 50).attr("y", 530).text("Scale");
 };
 
 function updateChart() {
@@ -482,7 +512,7 @@ function updateChart() {
     .data(data)
     .enter()
     .append("g")
-    .style("stroke", "black");
+    .style("stroke", (d) => (d.greatest_75_flag === "Y" ? "gold" : "black"));
 
   dots
     .append("circle")
@@ -532,7 +562,7 @@ function updateChart() {
       );
     })
     .on("mouseout", function (d) {
-      onMouseOut(this);
+      onMouseOut(this, d.target.__data__.greatest_75_flag);
     })
     .on("mousemove", function (event, d) {
       onMouseMove(event);

@@ -7,9 +7,9 @@ body {
   width: 750px;
 }
 #navigation {
-	width: 1000px;
-	height: 30px;
-	padding-top: 20px;
+  width: 1000px;
+  height: 30px;
+  padding-top: 20px;
   padding-left: 20px;
   padding-right: 20px;
   display: flex;
@@ -22,21 +22,21 @@ body {
   text-align: center;
 }
 #content {
-	width: 920px;
-	padding-left: 20px;
-	padding-right: 20px;
-	background-color: #ffffff;
-	padding-top: 20px;
+  width: 920px;
+  padding-left: 20px;
+  padding-right: 20px;
+  background-color: #ffffff;
+  padding-top: 20px;
   margin-top: 40px;
-	padding-bottom: 20px;
+  padding-bottom: 20px;
   width: 100%;
 }
 .centertext {
-	text-align: center;
+  text-align: center;
   font-size: 30px;
 }
 .centertextsmall {
-	text-align: center;
+  text-align: center;
   font-size: 20px;
   padding-top: 10px;
 }
@@ -47,14 +47,14 @@ body {
 }
 
 #picture {
-	background-image:url(./images/nba-basketball.jpg);
-	display: block;
+  background-image: url(./images/nba-basketball.jpg);
+  display: block;
   margin-left: auto;
   margin-right: auto;
   width: 920px;
-	height: 150px;
+  height: 150px;
   padding-left: 20px;
-	padding-right: 20px;
+  padding-right: 20px;
   display: flex;
   justify-content: center;
 }

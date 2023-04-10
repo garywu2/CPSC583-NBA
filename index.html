@@ -8,6 +8,10 @@
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
       crossorigin="anonymous"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    />
     <link rel="stylesheet" type="text/css" href="style.css" />
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
@@ -19,9 +23,7 @@
 
   <body>
     <div class="container">
-      <h1 class="fs-3 text-center bold">
-        Welcome to Group-14 CPSC 583 Project
-      </h1>
+      <h1 class="jumbotron text-center">NBA Dataset Visualizations</h1>
       <nav class="navbar navbar-expand-lg navbar-light bg-light pad">
         <button
           class="navbar-toggler"
@@ -53,64 +55,87 @@
           </ul>
         </div>
       </nav>
-      <div class="jumbotron text-center">
-        <h1>NBA Dataset Visualizations</h1>
-        <h3 class="centertextsmall">by Gurmukh, Moiz and Gary</h3>
+      <div class="text-center mt-2">
         <img
-          src="./images/nba-basketball.jpg"
-          class="img-thumbnail"
+          src="./images/nba-banner_1.jpg"
           alt="Cinque Terre"
-          width="920px"
-          height="150px"
+          width="1000px"
+          height="250px"
         />
-        <p class="eventsText">
+        <!-- <p class="eventsText">
           The dataset we are using is comes from Kaggle:
           https://www.kaggle.com/datasets/wyattowalsh/basketball and we will be
           doing 3 visualizations one focusing on physical attributes, one
           focusing on games and one focusing on player stats! Please see below
           for our three primary hypothesis
-        </p>
-        <div class="container">
+        </p> -->
+        <div class="container mt-4">
           <div class="row">
-            <div class="col-sm-4">
-              <h3>Hypothesis #1</h3>
-              <h4>
-                Performing better in NBA strength and eligibility tests or
-                having better physical stats is not directly related to players
-                being drafted higher
-              </h4>
-              <p>
-                To prove this hypothesis, we will create a bubble graph with
-                various different physical attributes such as height, wingspan,
-                benchpress and compare that with their draft number
-              </p>
+            <div class="col-sm-4 main-page-link-col">
+              <a href="physicalAttr.html" class="p-1">
+                <img src="./images/lifting.png" height="100px" />
+
+                <h4>
+                  Performing better in NBA strength and eligibility tests or
+                  having better physical stats is not directly related to
+                  players being drafted higher
+                </h4>
+                <p>
+                  To prove this hypothesis, we will create a bubble graph with
+                  various different physical attributes such as height,
+                  wingspan, benchpress and compare that with their draft number
+                </p>
+              </a>
             </div>
-            <div class="col-sm-4">
-              <h3>Hypothesis #2</h3>
-              <h4>
-                The more Pts a shot is worth, the lower the success rate. Also
-                that teams play better/win more when they are away rather than
-                at home
-              </h4>
-              <p>
-                To prove this hypothesis, we will show various games that are
-                played by NBA teams throughtout many seasons and correleate this
-                data together as well as show the success rates of different
-                shots made
-              </p>
+            <div class="col-sm-4 main-page-link-col">
+              <a href="games.html" class="p-1">
+                <img src="./images/basketball-ball.png" height="100px" />
+
+                <h4>
+                  The more Pts a shot is worth, the lower the success rate. Also
+                  that teams play better/win more when they are away rather than
+                  at home
+                </h4>
+                <p>
+                  To prove this hypothesis, we will show various games that are
+                  played by NBA teams throughtout many seasons and correleate
+                  this data together as well as show the success rates of
+                  different shots made
+                </p>
+              </a>
             </div>
-            <div class="col-sm-4">
-              <h3>Hypothesis #3</h3>
-              <h4>
-                Players who score more points have less
-                assists or rebounds and points, assists and rebounds are not
-                correlated to one another
-              </h4>
-              <p>
-                To prove this hypothesis, we will show the points, assits and
-                rebounds of the top players using a scatter plot and slope chart
-                to show the different correlations between them
-              </p>
+            <div class="col-sm-4 main-page-link-col">
+              <a href="all-time-data.html" class="p-1">
+                <img src="./images/basketball-player.png" height="100px" />
+
+                <h4>
+                  Players who score more points have less assists or rebounds
+                  and points, assists and rebounds are not correlated to one
+                  another
+                </h4>
+                <p>
+                  To prove this hypothesis, we will show the points, assits and
+                  rebounds of the top players using a scatter plot and slope
+                  chart to show the different correlations between them
+                </p>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="container mt-3">
+          <div class="row">
+            <div class="col text-end">
+              <h5>by Gurmukh, Moiz and Gary</h5>
+            </div>
+            <div class="col text-start">
+              <h5>
+                Data from
+                <a
+                  href="https://www.kaggle.com/datasets/wyattowalsh/basketball"
+                  target="_blank"
+                  >Kaggle</a
+                >
+              </h5>
             </div>
           </div>
         </div>

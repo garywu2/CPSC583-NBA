@@ -103,6 +103,51 @@ let scatterPlot = (selection, props) => {
     .attr("x", innerWidth / 2)
     .text(xAxisLabel);
 
+  var tooltip = d3
+    .select("body")
+    .append("div")
+    .style("opacity", 0)
+    .attr("class", "tooltip")
+    .style("background-color", "#fafafa")
+    .style("border", "solid")
+    .style("border-width", "1px")
+    .style("border-radius", "5px")
+    .style("padding", "10px");
+
+  var mouseover = function () {
+    tooltip.style("opacity", 1);
+  };
+
+  var mousemove = function (d) {
+    tooltip
+      .html(
+        "<div class='row'><div class='col'><h6>" +
+          d.target.__data__.PLAYER +
+          "</h6>" +
+          "<p>" +
+          yColumn +
+          ": " +
+          d.target.__data__[yColumn] +
+          "</p>" +
+          "<p>" +
+          xColumn +
+          ": " +
+          d.target.__data__[xColumn] +
+          "</p></div>" +
+          "<div class='col'><img src=" +
+          `https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/${d.target.__data__.ID}.png` +
+          " style='width:130px;height:95px;' alt='No image'></img></div></div>"
+      )
+      .style("left", d.pageX + 30 + "px")
+      .style("top", d.pageY - 30 + "px");
+  };
+
+  var mouseleave = function () {
+    // tooltip.transition().duration(10).style("opacity", 0);
+    tooltip.style("opacity", 0);
+  };
+
+  g.merge(gEnter).selectAll("circle").remove();
   const circles = g.merge(gEnter).selectAll("circle").data(data);
   circles
     .enter()
@@ -111,43 +156,73 @@ let scatterPlot = (selection, props) => {
     .attr("cy", innerHeight / 2)
     .attr("r", 0)
     .merge(circles)
-    // .on("click", () => {
-    //   console.log();
+    // .on("click", (e) => {
+    //   console.log(e);
     // })
+    .on("mouseover", mouseover)
+    .on("mousemove", mousemove)
+    .on("mouseleave", mouseleave)
     .transition()
     .duration(500)
     .delay((d, i) => i * 0.2)
     .attr("cy", (d) => yScale(yValue(d)))
     .attr("cx", (d) => xScale(xValue(d)))
-    .attr("r", circleRadius);
+    .attr("r", circleRadius)
+    .style("fill", "#17408b") //#c9082a #17408b
+    .style("opacity", "0.7");
 
+  // // img added
   // circles
   //   .enter()
   //   .append("circle")
+  //   .attr("cx", innerWidth / 2)
+  //   .attr("cy", innerHeight / 2)
+  //   .attr("r", 0)
+  //   .merge(circles)
+  //   .on("click", (e) => {
+  //     // console.log(e);
+  //   })
+  //   .on("mouseover", mouseover)
+  //   .on("mousemove", mousemove)
+  //   .on("mouseleave", mouseleave)
+  //   .transition()
+  //   .duration(500)
+  //   .delay((d, i) => i * 0.2)
   //   .attr("cy", (d) => yScale(yValue(d)))
   //   .attr("cx", (d) => xScale(xValue(d)))
   //   .attr("r", circleRadius)
-  //   .style("fill", "white");
+  //   .style("fill", "#17408b") //#c9082a #17408b
+  //   .style("opacity", "0.1");
 
   // circles
+  //   .enter()
   //   .append("svg:image")
   //   .attr(
   //     "xlink:href",
   //     (d) =>
-  //       `https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/${ID(
-  //         d
-  //       )}.png`
+  //       `https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/${d["ID"]}.png`
   //   )
-  //   .attr("height", 20)
-  //   .attr("width", 20)
+  //   .on("mouseover", mouseover)
+  //   .on("mousemove", mousemove)
+  //   .on("mouseleave", mouseleave)
+  //   .attr("x", innerWidth / 2)
+  //   .attr("y", innerHeight / 2)
+  //   .attr("r", 0)
+  //   .merge(circles)
+  //   .transition()
+  //   .duration(500)
+  //   .delay((d, i) => i * 0.2)
+  //   .attr("height", 40)
+  //   .attr("width", 40)
   //   .attr("y", (d) => yScale(yValue(d)) - circleRadius)
   //   .attr("x", (d) => xScale(xValue(d)) - circleRadius);
 };
 
 window.onload = function () {
   // setup("all-time-data.csv");
+  // "https://cdn.glitch.global/f6d71f37-7469-4731-ad9c-1a479f0ead49/all-time-data.csv?v=1680543455314"
   setup(
-    "https://cdn.glitch.global/f6d71f37-7469-4731-ad9c-1a479f0ead49/all-time-data.csv?v=1680543455314"
+    "https://cdn.glitch.global/f6d71f37-7469-4731-ad9c-1a479f0ead49/all-time-data-full.csv?v=1681225181193"
   );
 };
 
@@ -155,6 +230,8 @@ const width = 960;
 const height = 500;
 
 let data;
+let fulldata;
+let dataSlope;
 let svg;
 let xColumn = "Minutes";
 let yColumn = "Points";
@@ -170,30 +247,19 @@ const onYColumnClicked = (column) => {
   render();
 };
 
-// const onNColumnClicked = (column) => {
-//   n = column;
-//   render();
-// };
+const onNColumnClicked = (column) => {
+  n = column;
+  data = fulldata.slice(0, n);
+  render();
+};
 
 setup = function (dataPath) {
   svg = d3.select("#SVG_CONTAINER");
   // let svgS = d3.select("#my_dataviz");
 
   d3.csv(dataPath).then(function (loadedData) {
-    console.log(loadedData);
-    fullData = loadedData;
-    data = loadedData.slice(0, 25);
-    // let dataS = loadedData.slice(0, 25);
-    // data = loadedData.slice(0,25);
-    // let col = data.columns;
-    // // data.filter(function (d, i) {
-    // //   return i < 10;
-    // // });
-    // data = {col : data.filter(function (d) {
-    //   return d.RANK <= 100;
-    // })};
-    // data.slice
-    data.forEach((d) => {
+    // console.log(loadedData);
+    loadedData.forEach((d) => {
       // Minutes,Points,Rebounds,Assists,ID
       d.Minutes = +d.Minutes;
       d.Points = +d.Points;
@@ -201,12 +267,11 @@ setup = function (dataPath) {
       d.Assists = +d.Assists;
       d.ID = +d.ID;
     });
-
-    // xColumn = data.columns[1];
-    // yColumn = data.columns[2];
-
-    console.log(data);
-    console.log(data.columns);
+    fulldata = loadedData;
+    data = loadedData.slice(0, n);
+    dataSlope = loadedData.slice(0, 10);
+    // console.log(data);
+    // console.log(data.columns);
     render();
 
     let _SlopeChart = new SlopeChart();
@@ -216,30 +281,25 @@ setup = function (dataPath) {
 // const render = () => {
 render = function () {
   d3.select("#x-menu").call(dropdownMenu, {
-    // options: data.columns,
     options: ["Minutes", "Points", "Rebounds", "Assists"],
     onOptionClicked: onXColumnClicked,
     selectedOption: xColumn,
   });
 
   d3.select("#y-menu").call(dropdownMenu, {
-    // options: data.columns,
     options: ["Minutes", "Points", "Rebounds", "Assists"],
     onOptionClicked: onYColumnClicked,
     selectedOption: yColumn,
   });
 
-  // d3.select("#n-menu").call(dropdownMenu, {
-  //   // options: data.columns,
-  //   options: ["10", "25", "50"],
-  //   onOptionClicked: onNColumnClicked,
-  //   selectedOption: n,
-  // });
-
-  // data = fullData.slice(0, n);
+  d3.select("#n-menu").call(dropdownMenu, {
+    // options: data.columns,
+    options: ["10", "25", "50", "100", "250", "500", "1000"],
+    onOptionClicked: onNColumnClicked,
+    selectedOption: n,
+  });
 
   svg.call(scatterPlot, {
-    // ID: (d) => d["ID"],
     xValue: (d) => d[xColumn],
     xAxisLabel: xColumn,
     yValue: (d) => d[yColumn],
@@ -253,7 +313,7 @@ render = function () {
 };
 
 // SlopeChart
-var marginS = { top: 80, right: 20, bottom: 10, left: 20 },
+var marginS = { top: 50, right: 20, bottom: 10, left: 20 },
   widthS = 1000 - marginS.left - marginS.right,
   heightS = 800 - marginS.top - marginS.bottom;
 
@@ -266,55 +326,22 @@ let SlopeChart = function () {
     .append("g")
     .attr("transform", "translate(" + marginS.left + "," + marginS.top + ")");
 
-  console.log(data);
   dimensions = ["Points", "Rebounds", "Assists"];
-  console.log(dimensions);
-
-  // For each dimension, I build a linear scale. I store all in a y object
   var y = {};
   for (i in dimensions) {
     n = dimensions[i];
     y[n] = d3
       .scaleLinear()
       .domain(
-        d3.extent(data, function (d) {
+        d3.extent(dataSlope, function (d) {
           return +d[n];
         })
       )
       .range([heightS, 0]);
   }
 
-  // Build the X scale -> it find the best position for each Y axis
   x = d3.scalePoint().range([0, widthS]).padding(1).domain(dimensions);
 
-  // var highlight = function (d) {
-  //   selected_path = d.Points;
-  //   console.log(d);
-  //   // first every group turns grey
-  //   d3.selectAll(".line")
-  //     .transition()
-  //     .duration(200)
-  //     .style("stroke", "lightgrey")
-  //     .style("opacity", "0.2");
-  //   // // Second the hovered specie takes its color
-  //   d3.selectAll("." + d.Points)
-  //     .transition()
-  //     .duration(200)
-  //     .style("stroke", "red") //#69b3a2
-  //     .style("opacity", "1");
-  // };
-
-  // // Unhighlight
-  // var doNotHighlight = function (d) {
-  //   d3.selectAll(".line")
-  //     .transition()
-  //     .duration(200)
-  //     .delay(1000)
-  //     .style("stroke", "red")
-  //     .style("opacity", "1");
-  // };
-
-  // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
   function path(d) {
     return d3.line()(
       dimensions.map(function (p) {
@@ -323,50 +350,114 @@ let SlopeChart = function () {
     );
   }
 
-  // Draw the lines
+  function colour(d) {
+    const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+    return "#" + randomColor;
+  }
+
+  var c = 0;
+
+  function colour2(d) {
+    // const randomColor = ["#000066","#d63a99","#646f7a","#316bad"];
+    const randomColor = ["#17408b", "#c9082a"];
+    if (c == 0) {
+      c = 1;
+    } else {
+      c = 0;
+    }
+    return randomColor[c];
+  }
+
+  var tooltip = d3
+    .select("body")
+    .append("div")
+    .style("opacity", 0)
+    .attr("class", "tooltip")
+    .style("background-color", "#fafafa")
+    .style("border", "solid")
+    .style("border-width", "1px")
+    .style("border-radius", "5px")
+    .style("padding", "10px");
+
+  var mouseover = function () {
+    tooltip.style("opacity", 1);
+  };
+
+  var mousemove = function (d) {
+    tooltip
+      .html(
+        "<div class='row'><div class='col'><h6>" +
+          d.target.__data__.PLAYER +
+          "</h6>" +
+          "<p>Points: " +
+          d.target.__data__.Points +
+          "</p>" +
+          "<p>Rebounds: " +
+          d.target.__data__.Rebounds +
+          "</p>" +
+          "<p>Assists: " +
+          d.target.__data__.Assists +
+          "</p></div>" +
+          "<div class='col'><img src=" +
+          `https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/${d.target.__data__.ID}.png` +
+          " style='width:195px;height:142.5px;' alt='No image'></img></div></div>"
+        // "<h6>" +
+        //   d.target.__data__.PLAYER +
+        //   "</h6>" +
+        //   "<p>Points: " +
+        //   d.target.__data__.Points +
+        //   "</p>" +
+        //   "<p>Rebounds: " +
+        //   d.target.__data__.Rebounds +
+        //   "</p>" +
+        //   "<p>Assists: " +
+        //   d.target.__data__.Assists +
+        //   "</p>"
+      )
+      .style("left", d.pageX + 30 + "px")
+      .style("top", d.pageY - 30 + "px");
+  };
+
+  var mouseleave = function () {
+    // tooltip.transition().duration(10).style("opacity", 0);
+    tooltip.style("opacity", 0);
+  };
+
   svg
     .selectAll("myPath")
-    .data(data)
+    .data(dataSlope)
     .enter()
     .append("path")
     .attr("d", path)
-    // .attr(
-    //   ("class",
-    //   function (d) {
-    //     return "line " + d.Points
-    //   })
-    // )
     .style("fill", "none")
-    .style("stroke", "#69b3a2")
-    .style("stroke-width", "2")
+    .style("stroke", colour2)
+    .style("stroke-width", "4")
     .style("opacity", 1)
-    // .on("mouseover", highlight)
-    // .on("mouseleave", doNotHighlight)
-    .on("click", () => {
-      console.log("click");
-    });
+    // .on("click", () => {
+    //    console.log("click");
+    // })
+    .on("mouseover", mouseover)
+    .on("mousemove", mousemove)
+    .on("mouseleave", mouseleave);
 
-  // Draw the axis:
   svg
     .selectAll("myAxis")
-    // For each dimension of the dataset I add a 'g' element:
     .data(dimensions)
     .enter()
     .append("g")
-    // I translate this element to its right position on the x axis
     .attr("transform", function (d) {
       return "translate(" + x(d) + ")";
     })
-    // And I build the axis with the call function
     .each(function (d) {
       d3.select(this).call(d3.axisLeft().scale(y[d]));
     })
-    // Add axis title
+    // axis title
     .append("text")
     .style("text-anchor", "middle")
-    .attr("y", -9)
+    .style("font-size", "3em")
+    .attr("y", -10)
     .text(function (d) {
       return d;
     })
-    .style("fill", "black");
+    .style("fill", "#635f5d");
 };

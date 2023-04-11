@@ -8,9 +8,15 @@
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
       crossorigin="anonymous"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    />
     <link rel="stylesheet" type="text/css" href="all-time-data-styles.css" />
     <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="all-time-data-script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
   </head>
 
   <body>
@@ -46,22 +52,52 @@
           </ul>
         </div>
       </nav>
+
+      <div class="container mt-4">
+        <h1 class="text-center">Scatter Plot</h1>
+        <p class="text-center">
+          Manipulate the Y-axis and X-axis to see the correlations between Total
+          <b>Minutes</b> Played, Total <b>Points</b>, Total <b>Rebounds</b> and
+          Tolal <b>Assists</b> by NBA players. Change # of Players to see the
+          desired number of points on the plot. Hover over the points to see
+          more details.
+        </p>
+      </div>
+
       <!-- scatterplot -->
       <div id="menus">
+        <span>Y-axis </span>
         <span id="y-menu"></span>
-        vs.
+        <!-- <span style="font-size: 1.4rem;;">vs.</span> -->
+        <span>X-axis </span>
         <span id="x-menu"></span>
-      </div>
-      <div id="menus">
+        <span># of Players</span>
         <span id="n-menu"></span>
       </div>
+      <!-- <div id="menus">
+        <span id="n-menu"></span>
+      </div> -->
       <div id="MAIN" class="relative">
         <svg id="SVG_CONTAINER" width="960" height="500"></svg>
       </div>
 
       <!-- Slope chart -->
+      <div class="container mt-4">
+        <h1 class="text-center">Slope Chart</h1>
+        <p class="text-center">
+          The chart shows the top 10 Total <b>Points</b> scorers in the NBA and
+          how they rank in Total <b>Rebounds</b> and Tolal <b>Assists</b>. Hover
+          over the lines to see more details.
+        </p>
+      </div>
+
       <div id="MAIN" class="relative">
         <svg id="my_dataviz" width="960" height="1000"></svg>
+      </div>
+
+      <div class="row">
+        <div class="col"></div>
+        <div class="col"></div>
       </div>
     </div>
   </body>

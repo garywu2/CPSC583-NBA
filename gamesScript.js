@@ -78,7 +78,7 @@ function onError(e) {
 
 window.onload = function () {
   setup(
-    "https://cdn.glitch.global/f6d71f37-7469-4731-ad9c-1a479f0ead49/gameData.csv?v=1679519489429"
+    "https://cdn.glitch.global/f6d71f37-7469-4731-ad9c-1a479f0ead49/gameData3.csv?v=1679519489429"
   );
 
   const ctx = document.getElementById("myChart");
@@ -90,7 +90,6 @@ window.onload = function () {
     document.querySelectorAll('[data-bs-toggle="tooltip"]')
   );
   tooltipTriggerList.map(function (tooltipTriggerEl) {
-    console.log(tooltipTriggerEl);
     return new bootstrap.Tooltip(tooltipTriggerEl);
   });
 };
@@ -107,7 +106,7 @@ function onMouseOver(element, label, data, color) {
   barTooltip
     .html(`${label}: ${data}`)
     .style("opacity", "1")
-    .style("color", `${color}`);
+    .style("color", `#000000`);
 }
 
 function onMouseMove(event) {
@@ -138,7 +137,7 @@ setup = function (dataPath) {
 };
 
 let PhysicalAttrChart = function (data, svg) {
-  data = d3.groups(data, (d) => d.game_id).slice(0, 5000);
+  data = d3.groups(data, (d) => d.game_id).slice(0, 10000);
   //let chart = svg.append("g").attr("id", "games-chart");
 
   this.draw = function () {
@@ -189,6 +188,17 @@ let PhysicalAttrChart = function (data, svg) {
     var threePtPer = data[0][1][0]["fg3_pct_home"] * 100;
     var twoPtPer = data[0][1][0]["fg_pct_home"] * 100;
     var onePtPer = data[0][1][0]["ft_pct_home"] * 100;
+    var allTimeData = [
+      {
+        label: "Home Win %",
+        data: 39.7
+      },
+      {
+        label: "Away Win %",
+        data: 60.3
+      }
+    ]
+
     var dataSepTotal = [
       {
         teamName: "Total Points",
@@ -233,7 +243,7 @@ let PhysicalAttrChart = function (data, svg) {
         data: data[0][1][0]["fg_pct_away"] * 100,
       },
     ];
-    console.log(data[0][1][0]["fg3_pct_away"], data[0][1][0]["fg3_pct_home"]);
+    //console.log(data[0][1][0]["fg3_pct_away"], data[0][1][0]["fg3_pct_home"]);
 
     var dataSepTotalGraph_3pt = [
       {
@@ -255,8 +265,8 @@ let PhysicalAttrChart = function (data, svg) {
     ];
 
     var colors = [
-      { color: "#fc8d62", teamName: data[0][1][0]["team_abbreviation_home"] },
-      { color: "#8da0cb", teamName: data[0][1][0]["team_abbreviation_away"] },
+      { color: "#1F77B4", teamName: data[0][1][0]["team_abbreviation_home"] },
+      { color: "#FF7F0E", teamName: data[0][1][0]["team_abbreviation_away"] },
     ];
 
     // var dataSep2 = [
@@ -270,12 +280,6 @@ let PhysicalAttrChart = function (data, svg) {
     // var dataSep1 = [
     //     {teamName: data[0][1][0]['team_name_home'], freeThrowsH: data[0][1][0]['ftm_home'], freeThrowsA: data[0][1][0]['ftm_away']},
     // ]
-    // console.log("Cool stats");
-    // console.log(dataSep[0]);
-
-    // console.log("fdasfdsafsd");
-    // console.log(filtered[0][1][0]);
-    // console.log(dataSep.length);
 
     // Create SVG element
     var svg = d3
@@ -317,14 +321,22 @@ let PhysicalAttrChart = function (data, svg) {
     var colorScale = d3
       .scaleOrdinal()
       .domain(["value1", "value2"])
-      .range(["blue", "green"]);
+      .range(["#1F77B4", "#FF7F0E"]);
 
     // Add x axis to SVG
     chart
       .append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
+      .call(xAxis)
+      .append("text")
+      .attr("x", 230)
+      .attr("y", 28)
+      .style("text-anchor", "middle")
+      .attr("font-weight", 700)
+      .attr("font-size", "1.3em")
+      .text("Types of Points")
+      .style('fill', 'black');
 
     // Add y axis to chart
     chart
@@ -336,10 +348,10 @@ let PhysicalAttrChart = function (data, svg) {
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
+      .attr("font-weight", 700)
+      .attr("font-size", "1.4em")
       .text("Points")
-      .style("fill", function (d, i) {
-        return i % 2 == 0 ? "blue" : "green";
-      });
+      .style('fill', 'black');
 
     // Add bars to chart
     // chart.selectAll(".bar")
@@ -371,7 +383,7 @@ let PhysicalAttrChart = function (data, svg) {
       })
       .style("stroke", "black")
       .on("mouseover", function (e, d) {
-        onMouseOver(this, d["teamName"], d["totalptsH"], "green");
+        onMouseOver(this, d["teamName"], d["totalptsH"], "#FF7F0E");
       })
       .on("mouseout", function (d) {
         onMouseOut(this);
@@ -400,7 +412,7 @@ let PhysicalAttrChart = function (data, svg) {
       })
       .style("stroke", "black")
       .on("mouseover", function (e, d) {
-        onMouseOver(this, d["teamName"], d["totalptsA"], "blue");
+        onMouseOver(this, d["teamName"], d["totalptsA"], "#FF7F0E");
       })
       .on("mouseout", function (d) {
         onMouseOut(this);
@@ -428,13 +440,14 @@ let PhysicalAttrChart = function (data, svg) {
       .attr("width", 20)
       .attr("height", 20)
       .attr("fill", function (d, i) {
-        return i % 2 == 0 ? "blue" : "green";
+        return i % 2 == 0 ? "#1F77B4" : "#FF7F0E";
       });
 
     items
       .append("text")
       .attr("x", 405)
       .attr("y", -105)
+      .attr("font-weight", 700)
       .text(function (d, i) {
         return i % 2 == 0
           ? d["teamName"] + " (Home)"
@@ -448,12 +461,11 @@ let PhysicalAttrChart = function (data, svg) {
     });
 
     var arcs = pie(dataSepTotalGraph);
-    console.log(dataSepTotalGraph);
 
     var arc = d3
       .arc()
-      .innerRadius(0)
-      .outerRadius(80)
+      .innerRadius(40)
+      .outerRadius(70)
       .padAngle(0.03)
       .padRadius(70)
       .cornerRadius(4);
@@ -504,6 +516,12 @@ let PhysicalAttrChart = function (data, svg) {
       .text(function (d, i) {
         return d.data["label"];
       });
+    
+      pieChart.append("text")
+      .attr("text-anchor", "middle")
+      .attr("font-size", "24px")
+      .attr("y", 100)
+      .text("1 Pt %");
 
     //2 pt
     var pie_2pt = d3.pie().value(function (d, i) {
@@ -511,12 +529,11 @@ let PhysicalAttrChart = function (data, svg) {
     });
 
     var arcs_2pt = pie(dataSepTotalGraph_2pt);
-    console.log(dataSepTotalGraph_2pt);
 
     var arc_2pt = d3
       .arc()
-      .innerRadius(0)
-      .outerRadius(80)
+      .innerRadius(40)
+      .outerRadius(70)
       .padAngle(0.03)
       .padRadius(70)
       .cornerRadius(4);
@@ -569,6 +586,12 @@ let PhysicalAttrChart = function (data, svg) {
       .text(function (d, i) {
         return d.data["label"];
       });
+    
+    pieChart_2pt.append("text")
+      .attr("text-anchor", "middle")
+      .attr("font-size", "24px")
+      .attr("y", 100)
+      .text("2 Pt %");
 
     //3 pt
     var pie_3pt = d3.pie().value(function (d, i) {
@@ -576,12 +599,11 @@ let PhysicalAttrChart = function (data, svg) {
     });
 
     var arcs_3pt = pie(dataSepTotalGraph_3pt);
-    console.log(dataSepTotalGraph_3pt);
 
     var arc_3pt = d3
       .arc()
-      .innerRadius(0)
-      .outerRadius(80)
+      .innerRadius(40)
+      .outerRadius(70)
       .padAngle(0.03)
       .padRadius(70)
       .cornerRadius(4);
@@ -635,6 +657,82 @@ let PhysicalAttrChart = function (data, svg) {
         return d.data["label"];
       });
 
+    pieChart_3pt.append("text")
+    .attr("text-anchor", "middle")
+    .attr("font-size", "24px")
+    .attr("y", 100)
+    .text("3 Pt %");
+
+    var dArcs = pie(allTimeData);
+
+    var arcsDoughtfds = d3
+      .arc()
+      .innerRadius(40)
+      .outerRadius(70)
+      .padAngle(0.03)
+      .padRadius(70)
+      .cornerRadius(4);
+
+    var arcLabels_3pt = d3.arc().innerRadius(120).outerRadius(120);
+
+    var svgp3 = d3.select("#doughnutC");
+    let dGra = svgp3.append("g");
+
+    var doughtNutChart = dGra
+      .append("g")
+      .attr("transform", "translate(270, 100)");
+
+    doughtNutChart
+      .selectAll("path")
+      .data(dArcs)
+      .enter()
+      .append("path")
+      .attr("d", arcsDoughtfds)
+      .attr("fill", function (d, i) {
+        return i % 2 == 0 ? "red" : "green";
+      })
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 2)
+      .on("mouseover", function (e, d) {
+        onMouseOver(
+          this,
+          d.data["label"],
+          `${d.data["data"]}%`,
+          "black"
+        );
+      })
+      .on("mouseout", function (d) {
+        onMouseOutPie(this);
+      })
+      .on("mousemove", function (event, d) {
+        onMouseMove(event);
+      });
+
+    doughtNutChart
+      .selectAll("text")
+      .data(dArcs)
+      .enter()
+      .append("text")
+      .attr("transform", function (d) {
+        return "translate(" + arcLabels_3pt.centroid(d) + ")";
+      })
+      .attr("text-anchor", "middle")
+      .attr("font-size", "1.1em") 
+      .text(function (d, i) {
+        return d.data["label"];
+      });
+
+    doughtNutChart.append("text")
+    .attr("text-anchor", "middle")
+    .attr("font-size", "20px")
+    .attr("y", 100)
+    .text("Overall Team wins");
+
+
+    
+
+  
+
     // let playerNameContainer = document.getElementById("games-three-pointer");
     // playerNameContainer.innerHTML = "&nbsp  " + threePtPer + "%";
 
@@ -657,7 +755,7 @@ function updateGraph() {
   document.getElementById("games-pi-3").remove();
 
   var dataSepTotalGraph;
-  data = d3.groups(data, (d) => d.game_id).slice(0, 1000);
+  data = d3.groups(data, (d) => d.game_id).slice(0, 10000);
 
   var filtered = data.filter(function (d) {
     return d[1][0]["game_id"] === gameData;
@@ -711,12 +809,11 @@ function updateGraph() {
   });
 
   var arcs = pie(dataSepTotalGraph);
-  console.log(dataSepTotalGraph);
 
   var arc = d3
     .arc()
-    .innerRadius(0)
-    .outerRadius(80)
+    .innerRadius(40)
+    .outerRadius(70)
     .padAngle(0.03)
     .padRadius(70)
     .cornerRadius(4);
@@ -768,18 +865,23 @@ function updateGraph() {
       return d.data["label"];
     });
 
+  pieChart.append("text")
+    .attr("text-anchor", "middle")
+    .attr("font-size", "24px")
+    .attr("y", 100)
+    .text("1 Pt %");
+
   //2 pt
   var pie_2pt = d3.pie().value(function (d, i) {
     return d["data"];
   });
 
   var arcs_2pt = pie(dataSepTotalGraph_2pt);
-  console.log(dataSepTotalGraph_2pt);
 
   var arc_2pt = d3
     .arc()
-    .innerRadius(0)
-    .outerRadius(80)
+    .innerRadius(40)
+    .outerRadius(70)
     .padAngle(0.03)
     .padRadius(70)
     .cornerRadius(4);
@@ -833,18 +935,23 @@ function updateGraph() {
       return d.data["label"];
     });
 
+  pieChart_2pt.append("text")
+    .attr("text-anchor", "middle")
+    .attr("font-size", "24px")
+    .attr("y", 100)
+    .text("2 Pt %");
+
   //3 pt
   var pie_3pt = d3.pie().value(function (d, i) {
     return d["data"];
   });
 
   var arcs_3pt = pie(dataSepTotalGraph_3pt);
-  console.log(dataSepTotalGraph_3pt);
 
   var arc_3pt = d3
     .arc()
-    .innerRadius(0)
-    .outerRadius(80)
+    .innerRadius(40)
+    .outerRadius(70)
     .padAngle(0.03)
     .padRadius(70)
     .cornerRadius(4);
@@ -893,10 +1000,21 @@ function updateGraph() {
       return "translate(" + arcLabels_3pt.centroid(d) + ")";
     })
     .attr("text-anchor", "middle")
+    .attr("y", 30)
     .attr("font-size", "1.1em")
     .text(function (d, i) {
+      console.log(d.data["label"]);
+      console.log("hi");
       return d.data["label"];
     });
+  
+  pieChart_3pt.append("text")
+    .attr("text-anchor", "middle")
+    .attr("font-size", "24px")
+    .attr("y", 100)
+    .text("3 Pt %");
+  
+  
 
   // let playerNameContainer = document.getElementById("games-three-pointer");
   // playerNameContainer.innerHTML = "&nbsp  " + threePtPer + "%";
@@ -914,15 +1032,18 @@ function updateChart(e) {
   var game = document.getElementById("game-select");
   var gameData = game[game.selectedIndex].getAttribute("game_id");
   //var gameData = game[this.selected].getAttribute("game_id");
-  console.log(gameData);
   let oldChart = document.getElementById("games-chart");
   oldChart.remove();
-  data = d3.groups(data, (d) => d.game_id).slice(0, 1000);
+  data = d3.groups(data, (d) => d.game_id).slice(0, 10000);
   var margin = { top: 20, right: 20, bottom: 30, left: 40 };
   var width = 500 - margin.left - margin.right;
   var height = 500 - margin.top - margin.bottom;
   var filtered = data.filter(function (d) {
-    return d[1][0]["game_id"] === gameData;
+    if(d[1][0]["game_id"] === gameData != undefined) {
+      return d[1][0]["game_id"] === gameData;
+    } else if(d[2][0]["game_id"] === gameData != undefined) {
+      return d[2][0]["game_id"] === gameData;
+    }
   });
   // var dataSep = [
   //     {teamName: filtered[0][1][0]['team_name_home'], totalpts: filtered[0][1][0]['pts_home'], threepts: filtered[0][1][0]['fg3m_home'], fieldPts: filtered[0][1][0]['fgm_home'], freeThrows:filtered[0][1][0]['ftm_home']},
@@ -962,12 +1083,6 @@ function updateChart(e) {
   // var dataSep1 = [
   //     {teamName: data[0][1][0]['team_name_home'], freeThrowsH: data[0][1][0]['ftm_home'], freeThrowsA: data[0][1][0]['ftm_away']},
   // ]
-  // console.log("Cool stats");
-  // console.log(dataSep[0]);
-
-  // console.log("fdasfdsafsd");
-  // console.log(filtered[0][1][0]);
-  // console.log(dataSep.length);
 
   // Create SVG element
   var svg = d3
@@ -1009,14 +1124,23 @@ function updateChart(e) {
   var colorScale = d3
     .scaleOrdinal()
     .domain(["value1", "value2"])
-    .range(["blue", "green"]);
+    .range(["#1F77B4", "#FF7F0E"]);
 
   // Add x axis to SVG
   chart
     .append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height + ")")
-    .call(xAxis);
+    .call(xAxis)
+      .append("text")
+      .attr("x", 230)
+      .attr("y", 28)
+      .style("text-anchor", "middle")
+      .attr("font-weight", 700)
+      .attr("font-size", "1.3em")
+      .text("Types of Points")
+      .style('fill', 'black');
+
 
   // Add y axis to chart
   chart
@@ -1028,10 +1152,10 @@ function updateChart(e) {
     .attr("y", 6)
     .attr("dy", ".71em")
     .style("text-anchor", "end")
-    .text("Points")
-    .style("fill", function (d, i) {
-      return i % 2 == 0 ? "blue" : "green";
-    });
+    .attr("font-weight", 700)
+      .attr("font-size", "1.4em")
+      .text("Points")
+      .style('fill', 'black');
 
   // Add bars to chart
   // chart.selectAll(".bar")
@@ -1063,7 +1187,7 @@ function updateChart(e) {
     })
     .style("stroke", "black")
     .on("mouseover", function (e, d) {
-      onMouseOver(this, d["teamName"], d["totalptsH"], "green");
+      onMouseOver(this, d["teamName"], d["totalptsH"], "#000000");
     })
     .on("mouseout", function (d) {
       onMouseOut(this);
@@ -1092,7 +1216,7 @@ function updateChart(e) {
     })
     .style("stroke", "black")
     .on("mouseover", function (e, d) {
-      onMouseOver(this, d["teamName"], d["totalptsA"], "green");
+      onMouseOver(this, d["teamName"], d["totalptsA"], "#000000");
     })
     .on("mouseout", function (d) {
       onMouseOut(this);

@@ -137,13 +137,9 @@ setup = function (dataPath) {
 };
 
 let PhysicalAttrChart = function (data, svg) {
-  data = d3.groups(data, (d) => d.game_id).slice(0, 10000);
-  //let chart = svg.append("g").attr("id", "games-chart");
+  data = d3.groups(data, (d) => d.game_id).slice(0, 5000);
 
   this.draw = function () {
-    //let svgCur = d3.select("#GAMES_SVG_CONTAINER");
-    //let chart = svg.append("g").attr("id", "phys-attr-chart");
-    //let chart = svgCur.append("g").attr("id", "games-chart");
 
     barTooltip = d3
       .select("body")
@@ -177,14 +173,7 @@ let PhysicalAttrChart = function (data, svg) {
     var margin = { top: 20, right: 20, bottom: 30, left: 40 };
     var width = 500 - margin.left - margin.right;
     var height = 500 - margin.top - margin.bottom;
-    // var row = data[0][1][0];
-    // var filtered = data.filter(function(d) {
-    //     return d[1][0]['game_id'] === "28500006";
-    // });
-    // var dataSep = [
-    //     {teamName: data[0][1][0]['team_name_home'], totalpts: data[0][1][0]['pts_home'], threepts: data[0][1][0]['fg3m_home'], fieldPts: data[0][1][0]['fgm_home'], freeThrows:data[0][1][0]['ftm_home']},
-    //     {teamName: data[0][1][0]['team_name_away'], totalpts: data[0][1][0]['pts_away'], threepts: data[0][1][0]['fg3m_away'], fieldPts: data[0][1][0]['fgm_away'], freeThrows:data[0][1][0]['ftm_away']}
-    // ]
+
     var threePtPer = data[0][1][0]["fg3_pct_home"] * 100;
     var twoPtPer = data[0][1][0]["fg_pct_home"] * 100;
     var onePtPer = data[0][1][0]["ft_pct_home"] * 100;
@@ -243,7 +232,6 @@ let PhysicalAttrChart = function (data, svg) {
         data: data[0][1][0]["fg_pct_away"] * 100,
       },
     ];
-    //console.log(data[0][1][0]["fg3_pct_away"], data[0][1][0]["fg3_pct_home"]);
 
     var dataSepTotalGraph_3pt = [
       {
@@ -269,19 +257,6 @@ let PhysicalAttrChart = function (data, svg) {
       { color: "#FF7F0E", teamName: data[0][1][0]["team_abbreviation_away"] },
     ];
 
-    // var dataSep2 = [
-    //     {teamName: data[0][1][0]['team_name_home'], threeptsH: data[0][1][0]['fg3m_home'], threeptsA: data[0][1][0]['fg3m_away']},
-    // ]
-
-    // var dataSep3 = [
-    //     {teamName: data[0][1][0]['team_name_home'], fieldPtsH: data[0][1][0]['fgm_home'], fieldPtsA: data[0][1][0]['fgm_away']},
-    // ]
-
-    // var dataSep1 = [
-    //     {teamName: data[0][1][0]['team_name_home'], freeThrowsH: data[0][1][0]['ftm_home'], freeThrowsA: data[0][1][0]['ftm_away']},
-    // ]
-
-    // Create SVG element
     var svg = d3
       .select("#GAMES_SVG_CONTAINER")
       .attr("width", width + margin.left + margin.right)
@@ -290,7 +265,7 @@ let PhysicalAttrChart = function (data, svg) {
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     let chart = svg.append("g").attr("id", "games-chart");
-    // Set up scales for x and y axes
+
     var x = d3
       .scaleBand()
       .domain(
@@ -310,11 +285,6 @@ let PhysicalAttrChart = function (data, svg) {
         ) + 10,
       ]);
 
-    // Map data to x and y domains
-    // x.domain(dataSep.map(function(d) { return d['teamName']; }));
-    // y.domain([0, dataSep['totalpts']]);
-
-    // Create x and y axes
     var xAxis = d3.axisBottom(x);
     var yAxis = d3.axisLeft(y);
 
@@ -323,7 +293,6 @@ let PhysicalAttrChart = function (data, svg) {
       .domain(["value1", "value2"])
       .range(["#1F77B4", "#FF7F0E"]);
 
-    // Add x axis to SVG
     chart
       .append("g")
       .attr("class", "x axis")
@@ -352,16 +321,6 @@ let PhysicalAttrChart = function (data, svg) {
       .attr("font-size", "1.4em")
       .text("Points")
       .style('fill', 'black');
-
-    // Add bars to chart
-    // chart.selectAll(".bar")
-    //   .data(dataSep)
-    //   .enter().append("rect")
-    //   .attr("class", "bar")
-    //   .attr("x", function(d) { return x(d['teamName']); })
-    //   .attr("width", x.bandwidth())
-    //   .attr("y", function(d) { return y(d['totalpts']); })
-    //   .attr("height", function(d) { return height - y(d['totalpts']); });
 
     chart
       .selectAll("rect")
@@ -728,19 +687,6 @@ let PhysicalAttrChart = function (data, svg) {
     .attr("y", 100)
     .text("Overall Team wins");
 
-
-    
-
-  
-
-    // let playerNameContainer = document.getElementById("games-three-pointer");
-    // playerNameContainer.innerHTML = "&nbsp  " + threePtPer + "%";
-
-    // let playerAgeContainer = document.getElementById("games-two-pointer");
-    // playerAgeContainer.innerHTML = "&nbsp  " + twoPtPer + "%";
-
-    // let playerExpContainer = document.getElementById("games-one-pointer");
-    // playerExpContainer.innerHTML = "&nbsp  " + onePtPer + "%";
   };
 };
 
@@ -755,7 +701,7 @@ function updateGraph() {
   document.getElementById("games-pi-3").remove();
 
   var dataSepTotalGraph;
-  data = d3.groups(data, (d) => d.game_id).slice(0, 10000);
+  data = d3.groups(data, (d) => d.game_id).slice(0, 5000);
 
   var filtered = data.filter(function (d) {
     return d[1][0]["game_id"] === gameData;
@@ -1015,15 +961,6 @@ function updateGraph() {
     .text("3 Pt %");
   
   
-
-  // let playerNameContainer = document.getElementById("games-three-pointer");
-  // playerNameContainer.innerHTML = "&nbsp  " + threePtPer + "%";
-
-  // let playerAgeContainer = document.getElementById("games-two-pointer");
-  // playerAgeContainer.innerHTML = "&nbsp  " + twoPtPer + "%";
-
-  // let playerExpContainer = document.getElementById("games-one-pointer");
-  // playerExpContainer.innerHTML = "&nbsp  " + onePtPer + "%";
 }
 
 function updateChart(e) {
@@ -1031,7 +968,6 @@ function updateChart(e) {
   let SVG = d3.select("#GAMES_SVG_CONTAINER");
   var game = document.getElementById("game-select");
   var gameData = game[game.selectedIndex].getAttribute("game_id");
-  //var gameData = game[this.selected].getAttribute("game_id");
   let oldChart = document.getElementById("games-chart");
   oldChart.remove();
   data = d3.groups(data, (d) => d.game_id).slice(0, 10000);
@@ -1045,10 +981,7 @@ function updateChart(e) {
       return d[2][0]["game_id"] === gameData;
     }
   });
-  // var dataSep = [
-  //     {teamName: filtered[0][1][0]['team_name_home'], totalpts: filtered[0][1][0]['pts_home'], threepts: filtered[0][1][0]['fg3m_home'], fieldPts: filtered[0][1][0]['fgm_home'], freeThrows:filtered[0][1][0]['ftm_home']},
-  //     {teamName: filtered[0][1][0]['team_name_away'], totalpts: filtered[0][1][0]['pts_away'], threepts: filtered[0][1][0]['fg3m_away'], fieldPts: filtered[0][1][0]['fgm_away'], freeThrows:filtered[0][1][0]['ftm_away']}
-  // ]
+ 
   var dataSepTotal = [
     {
       teamName: "Total Points",
@@ -1072,19 +1005,6 @@ function updateChart(e) {
     },
   ];
 
-  // var dataSep2 = [
-  //     {teamName: data[0][1][0]['team_name_home'], threeptsH: data[0][1][0]['fg3m_home'], threeptsA: data[0][1][0]['fg3m_away']},
-  // ]
-
-  // var dataSep3 = [
-  //     {teamName: data[0][1][0]['team_name_home'], fieldPtsH: data[0][1][0]['fgm_home'], fieldPtsA: data[0][1][0]['fgm_away']},
-  // ]
-
-  // var dataSep1 = [
-  //     {teamName: data[0][1][0]['team_name_home'], freeThrowsH: data[0][1][0]['ftm_home'], freeThrowsA: data[0][1][0]['ftm_away']},
-  // ]
-
-  // Create SVG element
   var svg = d3
     .select("#GAMES_SVG_CONTAINER")
     .attr("width", width + margin.left + margin.right)
@@ -1093,7 +1013,6 @@ function updateChart(e) {
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   let chart = svg.append("g").attr("id", "games-chart");
-  // Set up scales for x and y axes
   var x = d3
     .scaleBand()
     .domain(
@@ -1113,11 +1032,6 @@ function updateChart(e) {
       ) + 10,
     ]);
 
-  // Map data to x and y domains
-  // x.domain(dataSep.map(function(d) { return d['teamName']; }));
-  // y.domain([0, dataSep['totalpts']]);
-
-  // Create x and y axes
   var xAxis = d3.axisBottom(x);
   var yAxis = d3.axisLeft(y);
 
@@ -1126,7 +1040,6 @@ function updateChart(e) {
     .domain(["value1", "value2"])
     .range(["#1F77B4", "#FF7F0E"]);
 
-  // Add x axis to SVG
   chart
     .append("g")
     .attr("class", "x axis")
@@ -1142,7 +1055,6 @@ function updateChart(e) {
       .style('fill', 'black');
 
 
-  // Add y axis to chart
   chart
     .append("g")
     .attr("class", "y axis")
@@ -1156,16 +1068,6 @@ function updateChart(e) {
       .attr("font-size", "1.4em")
       .text("Points")
       .style('fill', 'black');
-
-  // Add bars to chart
-  // chart.selectAll(".bar")
-  //   .data(dataSep)
-  //   .enter().append("rect")
-  //   .attr("class", "bar")
-  //   .attr("x", function(d) { return x(d['teamName']); })
-  //   .attr("width", x.bandwidth())
-  //   .attr("y", function(d) { return y(d['totalpts']); })
-  //   .attr("height", function(d) { return height - y(d['totalpts']); });
 
   chart
     .selectAll("rect")

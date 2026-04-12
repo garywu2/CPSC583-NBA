@@ -5,9 +5,10 @@ By: Gurmukh, Moiz and Gary
 
 NBA Dataset: https://www.kaggle.com/datasets/wyattowalsh/basketball
 
-## How to Run?
+## How to Run
 
-Simply launch index.html and then navigate to desired page.
+1. Open `index.html` in your browser.
+2. Navigate to the desired visualization page from the main menu.
 
 ## Where are the resources stored?
 
